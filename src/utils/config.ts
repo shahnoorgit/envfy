@@ -24,6 +24,18 @@ export interface GlobalKeysConfig {
 }
 
 /**
+ * Ensure the global keys file has owner-only permissions (chmod 600).
+ * Best-effort: ignore errors on platforms/filesystems that don't support chmod.
+ */
+function ensureKeysFilePermissions(keysPath: string): void {
+  try {
+    fs.chmodSync(keysPath, 0o600);
+  } catch {
+    // Ignore permission errors on non-POSIX filesystems or restricted environments
+  }
+}
+
+/**
  * Delete a key entry by project ID
  */
 export function deleteKeyEntry(projectId: string): void {
@@ -41,6 +53,7 @@ export function deleteKeyEntry(projectId: string): void {
     fs.mkdirSync(configDir, { recursive: true });
   }
   fs.writeFileSync(keysPath, JSON.stringify(updated, null, 2), "utf8");
+  ensureKeysFilePermissions(keysPath);
 }
 
 const PROJECT_CONFIG_DIR = ".envfy";
@@ -143,6 +156,7 @@ export function saveKeyEntry(entry: KeyEntry): void {
 
   const keysPath = getGlobalKeysPath();
   fs.writeFileSync(keysPath, JSON.stringify(config, null, 2), "utf8");
+  ensureKeysFilePermissions(keysPath);
 }
 
 /**
