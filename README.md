@@ -33,7 +33,7 @@ Upcoming:
 ## 🔧 Installation
 
 ```bash
-npm install -g envfy
+npm install -g envpull
 ```
 
 Or for local development:
@@ -50,7 +50,7 @@ npm link
 Inside your repo:
 
 ```bash
-envfy init
+envpull init
 ```
 
 You’ll be asked:
@@ -70,7 +70,7 @@ This creates:
 ### 2. Push your encrypted `.env` to R2
 
 ```bash
-envfy push
+envpull push
 ```
 
 This will:
@@ -94,8 +94,7 @@ This will:
 Teammate clones the repo and runs:
 
 ```bash
-envfy pull
-```
+envpull pull
 
 They enter the shared passphrase once.
 
@@ -161,8 +160,8 @@ Envfy uses R2’s S3-compatible API for encrypted storage.
 ## 🧪 Example Workflow
 
 ```bash
-envfy init
-envfy push
+envpull init
+envpull push
 git add .envfy/config.json
 git commit -m "add envfy config"
 git push
@@ -173,7 +172,7 @@ Teammate:
 ```bash
 git clone <repo>
 cd repo
-envfy pull
+envpull pull
 ```
 
 ---
@@ -182,11 +181,11 @@ envfy pull
 
 | Command | Description |
 |--------|-------------|
-| `envfy init` | Initialize project for Envfy |
-| `envfy push` | Encrypt & upload `.env` |
-| `envfy pull` | Download & decrypt `.env` |
-| *(coming soon)* `envfy diff` | Compare local vs remote |
-| *(coming soon)* `envfy push --env prod` | Multi-environment support |
+| `envpull init` | Initialize project for Envfy |
+| `envpull push` | Encrypt & upload `.env` |
+| `envpull pull` | Download & decrypt `.env` |
+| *(coming soon)* `envpull diff` | Compare local vs remote |
+| *(coming soon)* `envpull push --env prod` | Multi-environment support |
 
 ---
 

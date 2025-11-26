@@ -1,11 +1,11 @@
 {
-  "name": "envfy",
+  "name": "envpull",
   "version": "0.1.0",
   "type": "module",
   "description": "Secure .env sync CLI for teams",
   "main": "./dist/cli.js",
   "bin": {
-    "envfy": "./dist/cli.js"
+    "envpull": "./dist/cli.js"
   },
   "scripts": {
     "build": "tsc",
