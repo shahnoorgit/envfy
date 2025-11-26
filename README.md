@@ -1,7 +1,7 @@
-# 📦 **Envfy — Secure, Encrypted .env Sync for Teams**
+# 📦 **Pushenv — Secure, Encrypted .env Sync for Teams**
 ### *Simple. Fast. Open Source.*
 
-Envfy is a lightweight, encryption-first CLI tool that securely syncs your `.env` files across machines, teammates, and environments — without ever storing secrets in Git or exposing plaintext to the cloud.
+Pushenv is a simple, end-to-end encrypted CLI for sharing `.env` files safely across your team — without ever storing secrets in Git or exposing plaintext to the cloud.
 
 Built for developers who want **Doppler-level power** with **zero SaaS lock-in**.  
 Runs fully local. No accounts. No dashboard. No subscriptions.
@@ -23,7 +23,7 @@ Runs fully local. No accounts. No dashboard. No subscriptions.
 - 📝 **Open-source, no vendor lock-in**  
 
 Upcoming:
-- 🧪 `envfy diff` (compare local vs remote env)  
+- 🧪 `pushenv diff` (compare local vs remote env)  
 - 🌲 Multi-environment support (`dev`, `staging`, `prod`)  
 - 🧩 VSCode integration  
 - 🤖 GitHub Actions integration  
@@ -33,7 +33,7 @@ Upcoming:
 ## 🔧 Installation
 
 ```bash
-npm install -g envpull
+npm install -g pushenv
 ```
 
 Or for local development:
@@ -50,7 +50,7 @@ npm link
 Inside your repo:
 
 ```bash
-envpull init
+pushenv init
 ```
 
 You’ll be asked:
@@ -70,7 +70,7 @@ This creates:
 ### 2. Push your encrypted `.env` to R2
 
 ```bash
-envpull push
+pushenv push
 ```
 
 This will:
@@ -84,7 +84,7 @@ This will:
 
 ### 3. Share with teammates
 
-- Commit `.envfy/config.json` to Git  
+- Commit `.Envpull/config.json` to Git  
 - Share the **passphrase** privately (call / WhatsApp / in person)
 
 ---
@@ -94,13 +94,13 @@ This will:
 Teammate clones the repo and runs:
 
 ```bash
-envpull pull
+pushenv pull
 
 They enter the shared passphrase once.
 
 Then:
 
-- Envfy derives the AES key  
+- Pushenv derives the AES key  
 - Decrypts the remote blob  
 - Writes `.env` to disk  
 - Stores the derived key locally so future pulls don’t require the passphrase  
@@ -111,7 +111,7 @@ Done. 🎉
 
 ## 🔒 Security Model
 
-Envfy is designed to be secure by default:
+Pushenv is a simple, end-to-end encrypted CLI for sharing `.env` files safely across your team — without ever storing secrets in Git or exposing plaintext to the cloud.
 
 ### ✔ No plaintext secrets stored in Git  
 ### ✔ Passphrase is never stored anywhere  
@@ -123,7 +123,7 @@ Envfy is designed to be secure by default:
 ### ✔ Your `.env` file is decrypted **locally only** — never sent in plaintext across the network  
 ### ✔ Keyring is stored under your user account (`~/.envfy/keys.json`)  
 
-This keeps Envfy secure, predictable, and aligned with modern cryptographic best practices.
+This keeps Pushenv secure, predictable, and aligned with modern cryptographic best practices.
 
 ---
 
@@ -153,17 +153,17 @@ export R2_SECRET_ACCESS_KEY="..."
 
 These match what the CLI reads in `src/config/r2-credentials.ts`.
 
-Envfy uses R2’s S3-compatible API for encrypted storage.
+Pushenv uses R2’s S3-compatible API for encrypted storage.
 
 ---
 
 ## 🧪 Example Workflow
 
 ```bash
-envpull init
-envpull push
+pushenv init
+pushenv push
 git add .envfy/config.json
-git commit -m "add envfy config"
+git commit -m "add pushenv config"
 git push
 ```
 
@@ -181,17 +181,17 @@ envpull pull
 
 | Command | Description |
 |--------|-------------|
-| `envpull init` | Initialize project for Envfy |
-| `envpull push` | Encrypt & upload `.env` |
-| `envpull pull` | Download & decrypt `.env` |
-| *(coming soon)* `envpull diff` | Compare local vs remote |
-| *(coming soon)* `envpull push --env prod` | Multi-environment support |
+| `pushenv init` | Initialize project for Pushenv |
+| `pushenv push` | Encrypt & upload `.env` |
+| `pushenv pull` | Download & decrypt `.env` |
+| *(coming soon)* `pushenv diff` | Compare local vs remote |
+| *(coming soon)* `pushenv push --env prod` | Multi-environment support |
 
 ---
 
-## 🔥 Why Envfy?
+## 🔥 Why Pushenv?
 
-Envfy is built for developers who need:
+Pushenv is a simple, end-to-end encrypted CLI for sharing `.env` files safely across your team — without ever storing secrets in Git or exposing plaintext to the cloud.
 
 - A dead-simple `.env` sync solution  
 - No SaaS lock-in  
@@ -204,7 +204,7 @@ If SOPS is too heavy…
 If Doppler is too “enterprise”…  
 If git-crypt is too annoying…  
 
-**Envfy is the perfect middle-ground.**
+**Pushenv is the perfect middle-ground.**
 
 ---
 
@@ -230,7 +230,7 @@ If git-crypt is too annoying…
 ## ❤️ Contributing
 
 PRs welcome!  
-Envfy is designed to be clean, simple, and easy to contribute to.
+Pushenv is a simple, end-to-end encrypted CLI for sharing `.env` files safely across your team — without ever storing secrets in Git or exposing plaintext to the cloud.
 
 If you want to help with:
 
@@ -260,7 +260,7 @@ On a mission to make dev tooling simpler & faster
 
 ---
 
-# ⭐ If you like Envfy, star the repo!
+# ⭐ If you like Pushenv, star the repo!
 
 Your star helps more developers discover it.  
 Let’s build the go-to open-source `.env` sync tool!

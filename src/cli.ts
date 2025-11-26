@@ -7,13 +7,13 @@ import { pullCommand } from "./commands/pull.js";
 const program = new Command();
 
 program
-  .name("envpull")
+  .name("pushenv")
   .description("Secure .env sync CLI for teams")
   .version("0.1.0");
 
 program
   .command("init")
-  .description("Initialize envpull in your project")
+  .description("Initialize pushenv in your project")
   .action(async () => {
     try {
       await initCommand();

@@ -17,12 +17,12 @@ import {
 import { downloadFromR2, existsInR2 } from "../utils/r2-client.js";
 
 export async function pullCommand(): Promise<void> {
-  console.log(chalk.cyan("\n🔐 envfy pull - Download and decrypt .env\n"));
+  console.log(chalk.cyan("\n🔐 Envpull pull - Download and decrypt .env\n"));
 
-  // Check if project is initialized (has .envfy/config.json)
+  // Check if project is initialized (has .Envpull/config.json)
   if (!isProjectInitialized()) {
-    console.log(chalk.red("✗ No envfy config found in this project."));
-    console.log(chalk.gray("  Make sure .envfy/config.json exists (should be in the repo)."));
+    console.log(chalk.red("✗ No Envpull config found in this project."));
+    console.log(chalk.gray("  Make sure .Envpull/config.json exists (should be in the repo)."));
     process.exit(1);
   }
 
@@ -36,7 +36,7 @@ export async function pullCommand(): Promise<void> {
   const exists = await existsInR2(config.projectId);
   if (!exists) {
     console.log(chalk.red("\n✗ No encrypted .env found for this project."));
-    console.log(chalk.gray("  Ask your teammate to run 'envfy push' first."));
+    console.log(chalk.gray("  Ask your teammate to run 'Envpull push' first."));
     process.exit(1);
   }
   console.log(chalk.green("✓ Found encrypted .env in cloud"));

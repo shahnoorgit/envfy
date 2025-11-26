@@ -1,8 +1,8 @@
 {
-  "name": "envpull",
+  "name": "pushenv",
   "version": "0.1.0",
   "type": "module",
-  "description": "Secure .env sync CLI for teams",
+  "description": "Pushenv is a simple, end-to-end encrypted CLI for sharing .env files safely across your team",
   "main": "./dist/cli.js",
   "bin": {
     "envpull": "./dist/cli.js"

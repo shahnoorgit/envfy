@@ -18,7 +18,7 @@ import {
 } from "../utils/crypto.js";
 
 export async function initCommand(): Promise<void> {
-  console.log(chalk.cyan("\n🔐 envfy - Secure .env sync for teams\n"));
+  console.log(chalk.cyan("\n🔐 Envpull - Secure .env sync for teams\n"));
 
   // Step 1: Check if already initialized
   if (isProjectInitialized()) {
@@ -151,12 +151,12 @@ export async function initCommand(): Promise<void> {
   console.log();
   console.log(chalk.cyan("Next steps:"));
   console.log(chalk.white(`  1. Add your secrets to ${chalk.yellow(relativeEnvPath)}`));
-  console.log(chalk.white(`  2. Run ${chalk.yellow("envfy push")} to encrypt and upload`));
-  console.log(chalk.white(`  3. Commit ${chalk.yellow(".envfy/config.json")} to your repo`));
+  console.log(chalk.white(`  2. Run ${chalk.yellow("Envpull push")} to encrypt and upload`));
+  console.log(chalk.white(`  3. Commit ${chalk.yellow(".Envpull/config.json")} to your repo`));
   console.log(chalk.white(`  4. Share the passphrase securely with your team`));
-  console.log(chalk.white(`  5. Team members run ${chalk.yellow("envfy pull")} to sync`));
+  console.log(chalk.white(`  5. Team members run ${chalk.yellow("Envpull pull")} to sync`));
   console.log();
   console.log(chalk.gray(`Project ID: ${projectId}`));
-  console.log(chalk.gray(`Config: .envfy/config.json`));
+  console.log(chalk.gray(`Config: .Envpull/config.json`));
   console.log(chalk.green("═".repeat(50) + "\n"));
 }

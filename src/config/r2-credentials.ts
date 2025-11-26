@@ -26,7 +26,7 @@ export function getR2Credentials(): R2Credentials {
   const endpoint = process.env["R2_ENDPOINT"];
   const accessKey = process.env["R2_ACCESS_KEY"];
   const secretKey = process.env["R2_SECRET_KEY"];
-  const bucket = process.env["R2_BUCKET"] ?? "envfy";
+  const bucket = process.env["R2_BUCKET"] ?? "Envpull";
 
   if (!endpoint || !accessKey || !secretKey) {
     throw new Error(
