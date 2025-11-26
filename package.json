@@ -1,0 +1,44 @@
+{
+  "name": "envfy",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Secure .env sync CLI for teams",
+  "main": "./dist/cli.js",
+  "bin": {
+    "envfy": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "npm run clean && npm run build",
+    "dev": "node --import tsx src/cli.ts"
+  },
+  "keywords": [
+    "env",
+    "cli",
+    "sync",
+    "dotenv",
+    "environment"
+  ],
+  "author": "Shahnoor Mujawar",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "dist"
+  ],
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.940.0",
+    "chalk": "^5.6.2",
+    "commander": "^14.0.2",
+    "dotenv": "^17.2.3",
+    "inquirer": "^13.0.1"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^9.0.9",
+    "@types/node": "^24.10.1",
+    "tsx": "^4.19.0",
+    "typescript": "^5.9.3"
+  }
+}
