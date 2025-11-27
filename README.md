@@ -20,11 +20,11 @@ Runs fully local. No accounts. No dashboard. No subscriptions.
 - 🤝 **Easy team onboarding — clone repo → pull → enter passphrase → done**  
 - 📤 **Push encrypted `.env` to cloud**  
 - 📥 **Pull and decrypt `.env` securely**  
+- 🌲 **Multi-environment support (`development`, `staging`, `production`)**  
 - 📝 **Open-source, no vendor lock-in**  
 
 Upcoming:
 - 🧪 `pushenv diff` (compare local vs remote env)  
-- 🌲 Multi-environment support (`dev`, `staging`, `prod`)  
 - 🧩 VSCode integration  
 - 🤖 GitHub Actions integration  
 
@@ -53,16 +53,17 @@ Inside your repo:
 pushenv init
 ```
 
-You’ll be asked:
+You'll be asked:
 
-- Where is your `.env` file?
+- Which stages/environments to configure (development, staging, production)
+- Where each stage's `.env` file is located
 - Enter a passphrase (your team secret)
 
 This creates:
 
 ```
-.pushenv/config.json
-~/.pushenv/keys.json
+.pushenv/config.json      # project config with stage mappings
+~/.pushenv/keys.json      # per-device keyring (private)
 ```
 
 ---
@@ -70,12 +71,17 @@ This creates:
 ### 2. Push your encrypted `.env` to R2
 
 ```bash
+# Push development (default)
 pushenv push
+
+# Push a specific stage
+pushenv push --stage staging
+pushenv push --stage production
 ```
 
 This will:
 
-- Read `.env`
+- Read the stage-specific `.env` file
 - Encrypt it locally
 - Upload an encrypted blob to Cloudflare R2  
   *(never storing plaintext in the cloud)*
@@ -94,7 +100,13 @@ This will:
 Teammate clones the repo and runs:
 
 ```bash
+# Pull development (default)
 pushenv pull
+
+# Pull a specific stage
+pushenv pull --stage staging
+pushenv pull --stage production
+```
 
 They enter the shared passphrase once.
 
@@ -102,8 +114,8 @@ Then:
 
 - Pushenv derives the AES key  
 - Decrypts the remote blob  
-- Writes `.env` to disk  
-- Stores the derived key locally so future pulls don’t require the passphrase  
+- Writes the stage-specific `.env` file to disk  
+- Stores the derived key locally so future pulls don't require the passphrase  
 
 Done. 🎉
 
@@ -131,9 +143,11 @@ This keeps Pushenv secure, predictable, and aligned with modern cryptographic be
 
 ```
 project/
-  .env
+  .env.development        # development environment
+  .env.staging            # staging environment  
+  .env.production         # production environment
   .pushenv/
-    config.json           # safe to commit
+    config.json           # safe to commit (contains stage mappings)
 ~/.pushenv/
   keys.json               # per-device keyring (private, never commit)
 ```
@@ -160,8 +174,15 @@ Pushenv uses R2’s S3-compatible API for encrypted storage.
 ## 🧪 Example Workflow
 
 ```bash
+# Initialize with stages (development, staging, production)
 pushenv init
-pushenv push
+
+# Push all your stages
+pushenv push --stage development
+pushenv push --stage staging
+pushenv push --stage production
+
+# Commit config to git
 git add .pushenv/config.json
 git commit -m "add pushenv config"
 git push
@@ -172,7 +193,12 @@ Teammate:
 ```bash
 git clone <repo>
 cd repo
-pushenv pull
+
+# Pull the stage they need
+pushenv pull --stage development
+
+# Or check available stages first
+pushenv list-stages
 ```
 
 ---
@@ -181,11 +207,13 @@ pushenv pull
 
 | Command | Description |
 |--------|-------------|
-| `pushenv init` | Initialize project for Pushenv |
-| `pushenv push` | Encrypt & upload `.env` |
-| `pushenv pull` | Download & decrypt `.env` |
+| `pushenv init` | Initialize project for Pushenv (with stage selection) |
+| `pushenv push` | Encrypt & upload `.env` (development by default) |
+| `pushenv push --stage <stage>` | Encrypt & upload specific stage |
+| `pushenv pull` | Download & decrypt `.env` (development by default) |
+| `pushenv pull --stage <stage>` | Download & decrypt specific stage |
+| `pushenv list-stages` | Show all configured stages and their status |
 | *(coming soon)* `pushenv diff` | Compare local vs remote |
-| *(coming soon)* `pushenv push --env prod` | Multi-environment support |
 
 ---
 
@@ -210,13 +238,16 @@ If git-crypt is too annoying…
 
 ## 🛣 Roadmap
 
-### v0.2.0  
-- Multi-env (`dev`, `staging`, `prod`)  
+### v0.2.0 ✅
+- ✅ Multi-env (`development`, `staging`, `production`)  
+- ✅ `list-stages` command
+
+### v0.3.0  
 - Env diff  
 - CI/CD examples  
 - More tests
 
-### v0.3.0  
+### v0.4.0  
 - VSCode extension  
 - GitHub Action to sync secrets automatically  
 
@@ -234,11 +265,11 @@ Pushenv is a simple, end-to-end encrypted CLI for sharing `.env` files safely ac
 
 If you want to help with:
 
-- multi-env support  
 - diff logic  
 - docs  
 - testing  
 - examples  
+- VSCode extension
 
 Feel free to open an issue or PR.
 

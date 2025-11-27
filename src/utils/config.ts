@@ -2,11 +2,26 @@ import fs from "node:fs";
 import path from "node:path";
 import os from "node:os";
 
+export interface StageConfig {
+  envPath: string;
+}
+
 export interface ProjectConfig {
   projectId: string;
   envPath: string;
   createdAt: string;
+  /**
+   * Stage-specific configurations. If not present, the project uses
+   * the legacy single envPath (treated as "development" stage).
+   */
+  stages?: {
+    [stage: string]: StageConfig;
+  };
 }
+
+export const DEFAULT_STAGE = "development";
+export const AVAILABLE_STAGES = ["development", "staging", "production"] as const;
+export type StageName = (typeof AVAILABLE_STAGES)[number];
 
 export interface KeyEntry {
   projectId: string;
@@ -172,4 +187,45 @@ export function getKeyEntry(projectId: string): KeyEntry | undefined {
  */
 export function envFileExists(envPath: string): boolean {
   return fs.existsSync(envPath);
+}
+
+/**
+ * Get the env file path for a specific stage.
+ * Falls back to the legacy envPath if stages are not configured.
+ */
+export function getEnvPathForStage(
+  config: ProjectConfig,
+  stage: string
+): string | null {
+  // If stages are configured, use the stage-specific path
+  if (config.stages && config.stages[stage]) {
+    return config.stages[stage].envPath;
+  }
+  
+  // For backward compatibility: if no stages configured and stage is development,
+  // use the legacy envPath
+  if (!config.stages && stage === DEFAULT_STAGE) {
+    return config.envPath;
+  }
+  
+  return null;
+}
+
+/**
+ * Get all configured stages for a project.
+ * Returns ["development"] for legacy projects without stages config.
+ */
+export function getConfiguredStages(config: ProjectConfig): string[] {
+  if (config.stages) {
+    return Object.keys(config.stages);
+  }
+  // Legacy project - treat as having only development stage
+  return [DEFAULT_STAGE];
+}
+
+/**
+ * Check if a project has stage-based configuration
+ */
+export function hasStagesConfig(config: ProjectConfig): boolean {
+  return !!config.stages && Object.keys(config.stages).length > 0;
 }

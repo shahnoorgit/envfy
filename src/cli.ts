@@ -3,7 +3,9 @@ import { Command } from "commander";
 import { initCommand } from "./commands/init.js";
 import { pushCommand } from "./commands/push.js";
 import { pullCommand } from "./commands/pull.js";
+import { listStagesCommand } from "./commands/list-stages.js";
 import { PACKAGE_VERSION } from "./config/version.js";
+import { DEFAULT_STAGE } from "./utils/config.js";
 
 const program = new Command();
 
@@ -29,9 +31,10 @@ program
 program
   .command("push")
   .description("Encrypt and upload your .env to the cloud")
-  .action(async () => {
+  .option("-s, --stage <stage>", "Stage/environment to push", DEFAULT_STAGE)
+  .action(async (options: { stage: string }) => {
     try {
-      await pushCommand();
+      await pushCommand(options.stage);
     } catch (error) {
       if (error instanceof Error) {
         console.error(`Error: ${error.message}`);
@@ -43,9 +46,25 @@ program
 program
   .command("pull")
   .description("Download and decrypt .env from the cloud")
+  .option("-s, --stage <stage>", "Stage/environment to pull", DEFAULT_STAGE)
+  .action(async (options: { stage: string }) => {
+    try {
+      await pullCommand(options.stage);
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(`Error: ${error.message}`);
+      }
+      process.exit(1);
+    }
+  });
+
+program
+  .command("list-stages")
+  .alias("ls")
+  .description("List all configured stages and their status")
   .action(async () => {
     try {
-      await pullCommand();
+      await listStagesCommand();
     } catch (error) {
       if (error instanceof Error) {
         console.error(`Error: ${error.message}`);

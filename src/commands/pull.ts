@@ -8,6 +8,8 @@ import {
   getKeyEntry,
   saveKeyEntry,
   deleteKeyEntry,
+  getEnvPathForStage,
+  getConfiguredStages,
   type KeyEntry,
 } from "../utils/config.js";
 import {
@@ -16,8 +18,8 @@ import {
 } from "../utils/crypto.js";
 import { downloadFromR2, existsInR2 } from "../utils/r2-client.js";
 
-export async function pullCommand(): Promise<void> {
-  console.log(chalk.cyan("\n🔐 pushenv pull - Download and decrypt .env\n"));
+export async function pullCommand(stage: string): Promise<void> {
+  console.log(chalk.cyan(`\n🔐 pushenv pull - Download and decrypt .env (${stage})\n`));
 
   // Check if project is initialized (has .pushenv/config.json)
   if (!isProjectInitialized()) {
@@ -28,27 +30,38 @@ export async function pullCommand(): Promise<void> {
 
   const config = readProjectConfig()!;
 
-  console.log(chalk.gray(`Project: ${config.projectId}`));
-  console.log(chalk.gray(`Env file: ${config.envPath}\n`));
-
-  // Check if encrypted data exists in R2
-  console.log(chalk.gray("Checking cloud storage..."));
-  const exists = await existsInR2(config.projectId);
-  if (!exists) {
-    console.log(chalk.red("\n✗ No encrypted .env found for this project."));
-    console.log(chalk.gray("  Ask your teammate to run 'pushenv push' first."));
+  // Check if stage is configured
+  const envPathForStage = getEnvPathForStage(config, stage);
+  if (!envPathForStage) {
+    const configuredStages = getConfiguredStages(config);
+    console.log(chalk.red(`✗ Stage '${stage}' is not configured for this project.`));
+    console.log(chalk.gray(`  Configured stages: ${configuredStages.join(", ")}`));
+    console.log(chalk.gray(`  Run 'pushenv init' to reconfigure stages.`));
     process.exit(1);
   }
-  console.log(chalk.green("✓ Found encrypted .env in cloud"));
+
+  console.log(chalk.gray(`Project: ${config.projectId}`));
+  console.log(chalk.gray(`Stage: ${stage}`));
+  console.log(chalk.gray(`Env file: ${envPathForStage}\n`));
+
+  // Check if encrypted data exists in R2 for this stage
+  console.log(chalk.gray("Checking cloud storage..."));
+  const exists = await existsInR2(config.projectId, stage);
+  if (!exists) {
+    console.log(chalk.red(`\n✗ No encrypted .env found for stage '${stage}'.`));
+    console.log(chalk.gray(`  Ask your teammate to run 'pushenv push --stage ${stage}' first.`));
+    process.exit(1);
+  }
+  console.log(chalk.green(`✓ Found encrypted .env for ${stage} in cloud`));
 
   // Check if local .env already exists
-  const envPath = path.resolve(process.cwd(), config.envPath);
+  const envPath = path.resolve(process.cwd(), envPathForStage);
   if (fs.existsSync(envPath)) {
     const { overwrite } = await inquirer.prompt<{ overwrite: boolean }>([
       {
         type: "confirm",
         name: "overwrite",
-        message: `${config.envPath} already exists. Overwrite?`,
+        message: `${envPathForStage} already exists. Overwrite?`,
         default: false,
       },
     ]);
@@ -61,11 +74,11 @@ export async function pullCommand(): Promise<void> {
 
   console.log();
 
-  // Download from R2
+  // Download from R2 with stage
   console.log(chalk.gray("Downloading from cloud..."));
   let encryptedData: string;
   try {
-    encryptedData = await downloadFromR2(config.projectId);
+    encryptedData = await downloadFromR2(config.projectId, stage);
     console.log(chalk.green("✓ Downloaded encrypted data"));
   } catch (error) {
     if (error instanceof Error) {
@@ -136,14 +149,14 @@ export async function pullCommand(): Promise<void> {
     fs.writeFileSync(envPath, decrypted, "utf8");
 
     const lineCount = decrypted.split("\n").filter((l) => l.trim() && !l.startsWith("#")).length;
-    console.log(chalk.green(`✓ Saved ${lineCount} environment variables to ${config.envPath}`));
+    console.log(chalk.green(`✓ Saved ${lineCount} environment variables to ${envPathForStage}`));
 
     // Success message
     console.log(chalk.green("\n" + "═".repeat(50)));
-    console.log(chalk.green.bold("\n🎉 Pull successful!\n"));
-    console.log(chalk.white(`Your .env file is ready at ${chalk.yellow(config.envPath)}`));
+    console.log(chalk.green.bold(`\n🎉 Pull successful! (${stage})\n`));
+    console.log(chalk.white(`Your ${stage} .env file is ready at ${chalk.yellow(envPathForStage)}`));
     console.log();
-    console.log(chalk.gray("Remember: Never commit .env to version control!"));
+    console.log(chalk.gray("Remember: Never commit .env files to version control!"));
     console.log(chalk.green("═".repeat(50) + "\n"));
 
   } catch (error) {
@@ -163,4 +176,3 @@ export async function pullCommand(): Promise<void> {
     process.exit(1);
   }
 }
-

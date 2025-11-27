@@ -1,17 +1,18 @@
 import fs from "node:fs";
 import path from "node:path";
-import inquirer from "inquirer";
 import chalk from "chalk";
 import {
   isProjectInitialized,
   readProjectConfig,
   getKeyEntry,
+  getEnvPathForStage,
+  getConfiguredStages,
 } from "../utils/config.js";
 import { encrypt } from "../utils/crypto.js";
 import { uploadToR2 } from "../utils/r2-client.js";
 
-export async function pushCommand(): Promise<void> {
-  console.log(chalk.cyan("\n🔐 pushenv push - Encrypt and upload .env\n"));
+export async function pushCommand(stage: string): Promise<void> {
+  console.log(chalk.cyan(`\n🔐 pushenv push - Encrypt and upload .env (${stage})\n`));
 
   // Check if project is initialized
   if (!isProjectInitialized()) {
@@ -22,15 +23,26 @@ export async function pushCommand(): Promise<void> {
 
   const config = readProjectConfig()!;
 
-  // Check if .env file exists
-  const envPath = path.resolve(process.cwd(), config.envPath);
+  // Check if stage is configured
+  const envPathForStage = getEnvPathForStage(config, stage);
+  if (!envPathForStage) {
+    const configuredStages = getConfiguredStages(config);
+    console.log(chalk.red(`✗ Stage '${stage}' is not configured for this project.`));
+    console.log(chalk.gray(`  Configured stages: ${configuredStages.join(", ")}`));
+    console.log(chalk.gray(`  Run 'pushenv init' to reconfigure stages.`));
+    process.exit(1);
+  }
+
+  // Check if .env file exists for this stage
+  const envPath = path.resolve(process.cwd(), envPathForStage);
   if (!fs.existsSync(envPath)) {
-    console.log(chalk.red(`✗ .env file not found at ${config.envPath}`));
+    console.log(chalk.red(`✗ .env file not found at ${envPathForStage}`));
     process.exit(1);
   }
 
   console.log(chalk.gray(`Project: ${config.projectId}`));
-  console.log(chalk.gray(`Env file: ${config.envPath}\n`));
+  console.log(chalk.gray(`Stage: ${stage}`));
+  console.log(chalk.gray(`Env file: ${envPathForStage}\n`));
 
   // Load derived key material for this project
   const keyEntry = getKeyEntry(config.projectId);
@@ -63,10 +75,10 @@ export async function pushCommand(): Promise<void> {
   const dataToUpload = `${salt.toString("hex")}:${encrypted}`;
   console.log(chalk.green("✓ Encrypted successfully"));
 
-  // Upload to R2
+  // Upload to R2 with stage
   console.log(chalk.gray("Uploading to cloud..."));
   try {
-    await uploadToR2(config.projectId, dataToUpload);
+    await uploadToR2(config.projectId, dataToUpload, stage);
     console.log(chalk.green("✓ Uploaded to cloud storage"));
   } catch (error) {
     if (error instanceof Error) {
@@ -77,13 +89,12 @@ export async function pushCommand(): Promise<void> {
 
   // Success message
   console.log(chalk.green("\n" + "═".repeat(50)));
-  console.log(chalk.green.bold("\n🎉 Push successful!\n"));
-  console.log(chalk.white("Your encrypted .env is now in the cloud."));
+  console.log(chalk.green.bold(`\n🎉 Push successful! (${stage})\n`));
+  console.log(chalk.white(`Your encrypted ${stage} .env is now in the cloud.`));
   console.log();
   console.log(chalk.cyan("Share with your team:"));
   console.log(chalk.white(`  1. Commit ${chalk.yellow(".pushenv/config.json")} to your repo`));
   console.log(chalk.white(`  2. Share the ${chalk.yellow("passphrase")} securely (Signal, 1Password, etc.)`));
-  console.log(chalk.white(`  3. Teammates run ${chalk.yellow("pushenv pull")} and enter the passphrase`));
+  console.log(chalk.white(`  3. Teammates run ${chalk.yellow(`pushenv pull --stage ${stage}`)} and enter the passphrase`));
   console.log(chalk.green("\n" + "═".repeat(50) + "\n"));
 }
-
