@@ -23,3 +23,5 @@ npm-debug.log*
 docs/changes/changes-2025-11-26.md
 Envpull-0.1.0.tgz
 envfy-0.1.0.tgz
+src/config/r2-credentials-embedded.ts
+src/config/version.ts

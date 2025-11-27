@@ -15,8 +15,8 @@ Runs fully local. No accounts. No dashboard. No subscriptions.
   *(the passphrase is never stored; only a derived key is saved locally per device)*  
 - 🖥 **Each developer enters passphrase once per machine**  
 - ☁️ **Cloudflare R2 encrypted syncing (fast + free)**  
-- 📁 **Per-project configuration (`.envfy/config.json`)**  
-- 💻 **Per-device keyring (`~/.envfy/keys.json`, private to your user)**  
+- 📁 **Per-project configuration (`.pushenv/config.json`)**  
+- 💻 **Per-device keyring (`~/.pushenv/keys.json`, private to your user)**  
 - 🤝 **Easy team onboarding — clone repo → pull → enter passphrase → done**  
 - 📤 **Push encrypted `.env` to cloud**  
 - 📥 **Pull and decrypt `.env` securely**  
@@ -61,8 +61,8 @@ You’ll be asked:
 This creates:
 
 ```
-.envfy/config.json
-~/.envfy/keys.json
+.pushenv/config.json
+~/.pushenv/keys.json
 ```
 
 ---
@@ -84,7 +84,7 @@ This will:
 
 ### 3. Share with teammates
 
-- Commit `.Envpull/config.json` to Git  
+- Commit `.pushenv/config.json` to Git  
 - Share the **passphrase** privately (call / WhatsApp / in person)
 
 ---
@@ -121,7 +121,7 @@ Pushenv is a simple, end-to-end encrypted CLI for sharing `.env` files safely ac
 ### ✔ Salt embedded in encrypted payload for reproducible key derivation  
 ### ✔ Encrypted secrets stored in Cloudflare R2  
 ### ✔ Your `.env` file is decrypted **locally only** — never sent in plaintext across the network  
-### ✔ Keyring is stored under your user account (`~/.envfy/keys.json`)  
+### ✔ Keyring is stored under your user account (`~/.pushenv/keys.json`)  
 
 This keeps Pushenv secure, predictable, and aligned with modern cryptographic best practices.
 
@@ -132,9 +132,9 @@ This keeps Pushenv secure, predictable, and aligned with modern cryptographic be
 ```
 project/
   .env
-  .envfy/
+  .pushenv/
     config.json           # safe to commit
-~/.envfy/
+~/.pushenv/
   keys.json               # per-device keyring (private, never commit)
 ```
 
@@ -162,7 +162,7 @@ Pushenv uses R2’s S3-compatible API for encrypted storage.
 ```bash
 pushenv init
 pushenv push
-git add .envfy/config.json
+git add .pushenv/config.json
 git commit -m "add pushenv config"
 git push
 ```
@@ -172,7 +172,7 @@ Teammate:
 ```bash
 git clone <repo>
 cd repo
-envpull pull
+pushenv pull
 ```
 
 ---

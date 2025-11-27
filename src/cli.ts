@@ -3,13 +3,14 @@ import { Command } from "commander";
 import { initCommand } from "./commands/init.js";
 import { pushCommand } from "./commands/push.js";
 import { pullCommand } from "./commands/pull.js";
+import { PACKAGE_VERSION } from "./config/version.js";
 
 const program = new Command();
 
 program
   .name("pushenv")
   .description("Secure .env sync CLI for teams")
-  .version("0.1.0");
+  .version(PACKAGE_VERSION);
 
 program
   .command("init")

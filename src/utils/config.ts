@@ -56,9 +56,9 @@ export function deleteKeyEntry(projectId: string): void {
   ensureKeysFilePermissions(keysPath);
 }
 
-const PROJECT_CONFIG_DIR = ".Envpull";
+const PROJECT_CONFIG_DIR = ".pushenv";
 const PROJECT_CONFIG_FILE = "config.json";
-const GLOBAL_CONFIG_DIR = ".Envpull";
+const GLOBAL_CONFIG_DIR = ".pushenv";
 const GLOBAL_KEYS_FILE = "keys.json";
 
 /**
@@ -76,14 +76,14 @@ export function getProjectConfigPath(projectRoot: string = process.cwd()): strin
 }
 
 /**
- * Get the global config directory path (~/.Envpull)
+ * Get the global config directory path (~/.pushenv)
  */
 export function getGlobalConfigDir(): string {
   return path.join(os.homedir(), GLOBAL_CONFIG_DIR);
 }
 
 /**
- * Get the global keys file path (~/.Envpull/keys.json)
+ * Get the global keys file path (~/.pushenv/keys.json)
  */
 export function getGlobalKeysPath(): string {
   return path.join(getGlobalConfigDir(), GLOBAL_KEYS_FILE);

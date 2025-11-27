@@ -11,12 +11,12 @@ import { encrypt } from "../utils/crypto.js";
 import { uploadToR2 } from "../utils/r2-client.js";
 
 export async function pushCommand(): Promise<void> {
-  console.log(chalk.cyan("\n🔐 Envpull push - Encrypt and upload .env\n"));
+  console.log(chalk.cyan("\n🔐 pushenv push - Encrypt and upload .env\n"));
 
   // Check if project is initialized
   if (!isProjectInitialized()) {
     console.log(chalk.red("✗ Project not initialized."));
-    console.log(chalk.gray("  Run 'Envpull init' first to set up your project."));
+    console.log(chalk.gray("  Run 'pushenv init' first to set up your project."));
     process.exit(1);
   }
 
@@ -38,7 +38,7 @@ export async function pushCommand(): Promise<void> {
     console.log(chalk.red("✗ No key material found for this project on this machine."));
     console.log(
       chalk.gray(
-        "  Run 'Envpull pull' here once (with the shared passphrase) to set up this machine."
+        "  Run 'pushenv pull' here once (with the shared passphrase) to set up this machine."
       )
     );
     process.exit(1);
@@ -81,9 +81,9 @@ export async function pushCommand(): Promise<void> {
   console.log(chalk.white("Your encrypted .env is now in the cloud."));
   console.log();
   console.log(chalk.cyan("Share with your team:"));
-  console.log(chalk.white(`  1. Commit ${chalk.yellow(".Envpull/config.json")} to your repo`));
+  console.log(chalk.white(`  1. Commit ${chalk.yellow(".pushenv/config.json")} to your repo`));
   console.log(chalk.white(`  2. Share the ${chalk.yellow("passphrase")} securely (Signal, 1Password, etc.)`));
-  console.log(chalk.white(`  3. Teammates run ${chalk.yellow("Envpull pull")} and enter the passphrase`));
+  console.log(chalk.white(`  3. Teammates run ${chalk.yellow("pushenv pull")} and enter the passphrase`));
   console.log(chalk.green("\n" + "═".repeat(50) + "\n"));
 }
 

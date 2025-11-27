@@ -1,14 +1,15 @@
 {
   "name": "pushenv",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "type": "module",
   "description": "Pushenv is a simple, end-to-end encrypted CLI for sharing .env files safely across your team",
   "main": "./dist/cli.js",
   "bin": {
-    "envpull": "./dist/cli.js"
+    "pushenv": "./dist/cli.js"
   },
   "scripts": {
-    "build": "tsc",
+    "embed-credentials": "node scripts/embed-r2-credentials.js",
+    "build": "npm run embed-credentials && tsc",
     "clean": "rm -rf dist",
     "prepublishOnly": "npm run clean && npm run build",
     "dev": "node --import tsx src/cli.ts"

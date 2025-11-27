@@ -7,11 +7,12 @@ export interface R2Config {
 
 /**
  * Get R2 configuration from environment variables
- * Expected vars: R2_ACCESS_KEY, R2_SECRET_KEY, R2_ENDPOINT, R2_BUCKET
+ * Expected vars: R2_ACCESS_KEY, R2_SECRET_KEY (or R2_SECRET_ACCESS_KEY), R2_ENDPOINT, R2_BUCKET
  */
 export function getR2ConfigFromEnv(): R2Config | null {
   const accessKey = process.env["R2_ACCESS_KEY"];
-  const secretKey = process.env["R2_SECRET_KEY"];
+  // Support both R2_SECRET_ACCESS_KEY (AWS S3 standard) and R2_SECRET_KEY (shorter name)
+  const secretKey = process.env["R2_SECRET_ACCESS_KEY"] || process.env["R2_SECRET_KEY"];
   const endpoint = process.env["R2_ENDPOINT"];
   const bucket = process.env["R2_BUCKET"];
 
