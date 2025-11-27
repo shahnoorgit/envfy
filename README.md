@@ -21,6 +21,7 @@ Runs fully local. No accounts. No dashboard. No subscriptions.
 - 📤 **Push encrypted `.env` to cloud**  
 - 📥 **Pull and decrypt `.env` securely**  
 - 🌲 **Multi-environment support (`development`, `staging`, `production`)**  
+- 🚀 **Zero-file execution** - run commands with secrets injected directly into memory  
 - 📝 **Open-source, no vendor lock-in**  
 
 Upcoming:
@@ -121,6 +122,32 @@ Done. 🎉
 
 ---
 
+### 5. Zero-File Execution (Advanced)
+
+Run commands with secrets injected directly into process memory — **no .env file ever touches disk**:
+
+```bash
+# Run with development secrets (default)
+pushenv run "npm start"
+
+# Run with production secrets
+pushenv run --stage production "npm start"
+
+# Preview what would be injected (dry run)
+pushenv run --stage production --dry-run "npm start"
+
+# Show variable names being injected
+pushenv run --stage production --verbose "npm start"
+```
+
+This is the **most secure way** to use secrets:
+- Secrets exist only in process memory
+- No file to accidentally commit or leak
+- When the process exits, secrets are gone
+- Perfect for CI/CD and production deployments
+
+---
+
 ## 🔒 Security Model
 
 Pushenv is a simple, end-to-end encrypted CLI for sharing `.env` files safely across your team — without ever storing secrets in Git or exposing plaintext to the cloud.
@@ -212,6 +239,10 @@ pushenv list-stages
 | `pushenv push --stage <stage>` | Encrypt & upload specific stage |
 | `pushenv pull` | Download & decrypt `.env` (development by default) |
 | `pushenv pull --stage <stage>` | Download & decrypt specific stage |
+| `pushenv run <command>` | Run command with secrets injected (no file created) |
+| `pushenv run --stage <stage> <command>` | Run with specific stage secrets |
+| `pushenv run --dry-run <command>` | Preview what would be injected |
+| `pushenv run --verbose <command>` | Show variable names being injected |
 | `pushenv list-stages` | Show all configured stages and their status |
 | *(coming soon)* `pushenv diff` | Compare local vs remote |
 
@@ -241,6 +272,7 @@ If git-crypt is too annoying…
 ### v0.2.0 ✅
 - ✅ Multi-env (`development`, `staging`, `production`)  
 - ✅ `list-stages` command
+- ✅ `run` command - zero-file execution
 
 ### v0.3.0  
 - Env diff  

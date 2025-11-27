@@ -4,6 +4,7 @@ import { initCommand } from "./commands/init.js";
 import { pushCommand } from "./commands/push.js";
 import { pullCommand } from "./commands/pull.js";
 import { listStagesCommand } from "./commands/list-stages.js";
+import { runCommand } from "./commands/run.js";
 import { PACKAGE_VERSION } from "./config/version.js";
 import { DEFAULT_STAGE } from "./utils/config.js";
 
@@ -65,6 +66,27 @@ program
   .action(async () => {
     try {
       await listStagesCommand();
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(`Error: ${error.message}`);
+      }
+      process.exit(1);
+    }
+  });
+
+program
+  .command("run <command...>")
+  .description("Run a command with secrets injected (no .env file created)")
+  .option("-s, --stage <stage>", "Stage/environment to use", DEFAULT_STAGE)
+  .option("-v, --verbose", "Show injected variable names", false)
+  .option("--dry-run", "Show what would be injected without running", false)
+  .action(async (command: string[], options: { stage: string; verbose: boolean; dryRun: boolean }) => {
+    try {
+      await runCommand(command, {
+        stage: options.stage,
+        verbose: options.verbose,
+        dryRun: options.dryRun,
+      });
     } catch (error) {
       if (error instanceof Error) {
         console.error(`Error: ${error.message}`);
