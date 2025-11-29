@@ -1,33 +1,31 @@
-# 📦 **PushEnv — Secure, Encrypted .env Sync for Teams**
+# 📦 PushEnv — Secure, Encrypted .env Sync for Teams
 ### *Simple. Fast. Open Source.*
 
-Pushenv is a simple, end-to-end encrypted CLI for sharing `.env` files safely across your team — without ever storing secrets in Git or exposing plaintext to the cloud.
+[![npm version](https://img.shields.io/npm/v/pushenv.svg)](https://www.npmjs.com/package/pushenv)
+[![npm downloads](https://img.shields.io/npm/dw/pushenv.svg)](https://www.npmjs.com/package/pushenv)
+[![license](https://img.shields.io/npm/l/pushenv.svg)](./LICENSE)
 
-Built for developers who want **Doppler-level power** with **zero SaaS lock-in**.  
-Runs fully local. No accounts. No dashboard. No subscriptions.
+> **TL;DR:** Sync encrypted `.env` files across your team safely — no plaintext secrets in Git, no SaaS lock-in. Just encryption + your own storage.
+
+PushEnv solves the **core problem** developers face: **sharing `.env` files across teams without exposing secrets**. It's an open-source, end-to-end encrypted CLI that keeps your secrets safe — no plaintext in Git, Docker images, CI logs, or cloud storage.
+
+Built for developers who want **Doppler-level power** with **zero SaaS lock‑in**.  
+Runs fully local. No accounts. No dashboards. No subscriptions.
 
 ---
 
 ## 🚀 Features
 
-- 🔐 **AES-256-GCM end-to-end encryption**  
-- 🚀 **Zero-file execution** - run commands with secrets injected directly into memory  
-- 🔑 **PBKDF2 passphrase-derived keys**  
-  *(the passphrase is never stored; only a derived key is saved locally per device)*  
-- 🖥 **Each developer enters passphrase once per machine**  
-- ☁️ **Cloudflare R2 encrypted syncing (fast + free)**  
-- 📁 **Per-project configuration (`.pushenv/config.json`)**  
-- 💻 **Per-device keyring (`~/.pushenv/keys.json`, private to your user)**  
-- 🤝 **Easy team onboarding — clone repo → pull → enter passphrase → done**  
-- 📤 **Push encrypted `.env` to cloud**  
-- 📥 **Pull and decrypt `.env` securely**  
-- 🌲 **Multi-environment support (`development`, `staging`, `production`)**  
-- 📝 **Open-source, no vendor lock-in**  
-
-Upcoming:
-- 🧪 `pushenv diff` (compare local vs remote env)  
-- 🧩 VSCode integration  
-- 🤖 GitHub Actions integration  
+- 🚀 **Zero-file execution** — run commands with secrets injected directly into memory, no `.env` files ever written to disk  
+- 🔐 **AES-256-GCM end-to-end encryption** — secrets encrypted before leaving your machine  
+- 🔑 **PBKDF2 passphrase-derived keys** — passphrase never stored, only derived key  
+- 🌲 **Multi-environment support** — manage `development`, `staging`, `production` separately  
+- 💾 **Works with any S3-compatible storage** — Cloudflare R2, AWS S3, MinIO, etc.  
+- 🖥 **One-time passphrase per machine** — enter once, key stored securely  
+- 📁 **Per-project configuration** — `.pushenv/config.json` (safe to commit)  
+- 💻 **Per-device keyring** — `~/.pushenv/keys.json` (private, never commit)  
+- 🔓 **Secrets never sent in plaintext** — encrypted end-to-end  
+- 📝 **Fully open-source, no vendor lock-in**
 
 ---
 
@@ -37,7 +35,7 @@ Upcoming:
 npm install -g pushenv
 ```
 
-Or for local development:
+OR for development:
 
 ```bash
 npm link
@@ -47,135 +45,109 @@ npm link
 
 ## 🛠 Quick Start
 
-### 1. Initialize your project
-Inside your repo:
+### 1️⃣ Initialize
 
 ```bash
 pushenv init
 ```
 
-You'll be asked:
+You'll choose:
+- environments (dev, staging, prod)
+- file paths for each env
+- passphrase (team secret)
 
-- Which stages/environments to configure (development, staging, production)
-- Where each stage's `.env` file is located
-- Enter a passphrase (your team secret)
-
-This creates:
+Creates:
 
 ```
-.pushenv/config.json      # project config with stage mappings
-~/.pushenv/keys.json      # per-device keyring (private)
+.pushenv/config.json      # safe to commit
+~/.pushenv/keys.json      # device keyring (private)
 ```
 
 ---
 
-### 2. Push your encrypted `.env` to R2
+### 2️⃣ Push encrypted `.env` files
 
 ```bash
-# Push development (default)
 pushenv push
-
-# Push a specific stage
 pushenv push --stage staging
 pushenv push --stage production
-# Or use short form:
-pushenv push -s staging
-pushenv push -s production
 ```
 
-This will:
+PushEnv will:
+- Read your `.env`
+- Encrypt locally
+- Upload the encrypted blob to your S3-compatible bucket
 
-- Read the stage-specific `.env` file
-- Encrypt it locally
-- Upload an encrypted blob to Cloudflare R2  
-  *(never storing plaintext in the cloud)*
-
----
-
-### 3. Share with teammates
-
-- Commit `.pushenv/config.json` to Git  
-- Share the **passphrase** privately (call / WhatsApp / in person)
+Secrets **never** leave your machine unencrypted.
 
 ---
 
-### 4. Teammates pull & decrypt
-
-Teammate clones the repo and runs:
+### 3️⃣ Teammates pull & decrypt
 
 ```bash
-# Pull development (default)
 pushenv pull
-
-# Pull a specific stage
-pushenv pull --stage staging
-pushenv pull --stage production
-# Or use short form:
-pushenv pull -s staging
 pushenv pull -s production
 ```
 
-They enter the shared passphrase once.
+After entering passphrase once:
+- AES key is derived
+- Encrypted blob downloaded
+- Decrypted locally only
+- `.env` file written to your configured path
 
-Then:
-
-- Pushenv derives the AES key  
-- Decrypts the remote blob  
-- Writes the stage-specific `.env` file to disk  
-- Stores the derived key locally so future pulls don't require the passphrase  
-
-Done. 🎉
+**Note:** PushEnv will prompt for confirmation when pushing/pulling production environments for safety.
 
 ---
 
-### 5. Zero-File Execution (Advanced)
+## 🚀 Zero-File Execution (Advanced)
 
-Run commands with secrets injected directly into process memory — **no .env file ever touches disk**:
+**Optional feature:** Run commands with secrets injected directly into process memory — no `.env` file written to disk.
 
 ```bash
 # Run with development secrets (default)
 pushenv run "npm start"
 
 # Run with production secrets
-pushenv run --stage production "npm start"
-# Or use short form:
 pushenv run -s production "npm start"
+pushenv run --stage production "npm start"
 
 # Preview what would be injected (dry run)
-pushenv run --stage production --dry-run "npm start"
+pushenv run --dry-run -s production "npm start"
 
 # Show variable names being injected
-pushenv run --stage production --verbose "npm start"
-# Or use short form:
-pushenv run -s production -v "npm start"
+pushenv run -v "npm start"
+pushenv run --verbose "npm start"
 
-# Combine options: stage + verbose + dry-run
+# Combine options
 pushenv run -s production -v --dry-run "npm start"
 ```
 
-This is the **most secure way** to use secrets:
-- Secrets exist only in process memory
-- No file to accidentally commit or leak
-- When the process exits, secrets are gone
-- Perfect for CI/CD and production deployments
+**When to use:**
+- CI/CD pipelines where you don't want `.env` files
+- Docker containers for cleaner images
+- Extra-paranoid security workflows
+- When you want secrets to vanish when process exits
+
+**Benefits:**
+- No `.env` file to accidentally commit
+- No residual secret files on disk
+- Secrets only exist in process memory
+- Perfect for production deployments
 
 ---
 
 ## 🔒 Security Model
 
-Pushenv is a simple, end-to-end encrypted CLI for sharing `.env` files safely across your team — without ever storing secrets in Git or exposing plaintext to the cloud.
+✔ No plaintext secrets stored in Git  
+✔ Passphrase never stored  
+✔ Only derived AES key stored locally  
+✔ AES-256-GCM authenticated encryption  
+✔ PBKDF2 key derivation  
+✔ Encrypted blobs stored in **your** S3-compatible bucket  
+✔ Secrets decrypted locally only  
+✔ Keyring stored per-user (`~/.pushenv/keys.json`)  
 
-### ✔ No plaintext secrets stored in Git  
-### ✔ Passphrase is never stored anywhere  
-### ✔ Only the derived AES key is saved locally (per-device)  
-### ✔ AES-256-GCM authenticated encryption  
-### ✔ PBKDF2 key derivation with salt  
-### ✔ Salt embedded in encrypted payload for reproducible key derivation  
-### ✔ Encrypted secrets stored in Cloudflare R2  
-### ✔ Your `.env` file is decrypted **locally only** — never sent in plaintext across the network  
-### ✔ Keyring is stored under your user account (`~/.pushenv/keys.json`)  
-
-This keeps Pushenv secure, predictable, and aligned with modern cryptographic best practices.
+PushEnv follows modern cryptography and zero-trust local workflows.
 
 ---
 
@@ -183,67 +155,33 @@ This keeps Pushenv secure, predictable, and aligned with modern cryptographic be
 
 ```
 project/
-  .env.development        # development environment
-  .env.staging            # staging environment  
-  .env.production         # production environment
+  .env.development
+  .env.staging
+  .env.production
   .pushenv/
-    config.json           # safe to commit (contains stage mappings)
+    config.json
 ~/.pushenv/
-  keys.json               # per-device keyring (private, never commit)
+  keys.json
 ```
 
 ---
 
-## 🌩 Cloudflare R2 Setup (Required)
+## 🌩 S3-Compatible Storage Setup
 
-Set the following environment variables:
+Set environment variables:
 
 ```bash
 export R2_BUCKET="your-bucket"
-export R2_ENDPOINT="https://<accountid>.r2.cloudflarestorage.com"
+export R2_ENDPOINT="https://endpoint"
 export R2_ACCESS_KEY="..."
 export R2_SECRET_ACCESS_KEY="..."
 ```
 
-These match what the CLI reads in `src/config/r2-credentials.ts`.
-
-Pushenv uses R2’s S3-compatible API for encrypted storage.
-
----
-
-## 🧪 Example Workflow
-
-```bash
-# Initialize with stages (development, staging, production)
-pushenv init
-
-# Push all your stages
-pushenv push --stage development
-pushenv push -s staging
-pushenv push -s production
-
-# Commit config to git
-git add .pushenv/config.json
-git commit -m "add pushenv config"
-git push
-```
-
-Teammate:
-
-```bash
-git clone <repo>
-cd repo
-
-# Check available stages first
-pushenv list-stages
-# Or use alias:
-pushenv ls
-
-# Pull the stage they need
-pushenv pull --stage development
-# Or use short form:
-pushenv pull -s development
-```
+Works with:
+- Cloudflare R2  
+- AWS S3  
+- MinIO  
+- Any S3-compatible storage  
 
 ---
 
@@ -251,97 +189,80 @@ pushenv pull -s development
 
 | Command | Description |
 |--------|-------------|
-| `pushenv init` | Initialize project for Pushenv (with stage selection) |
+| `pushenv init` | Initialize project (configure stages and passphrase) |
 | `pushenv push` | Encrypt & upload `.env` (default: `development` stage) |
 | `pushenv push -s <stage>`<br/>`pushenv push --stage <stage>` | Encrypt & upload specific stage |
 | `pushenv pull` | Download & decrypt `.env` (default: `development` stage) |
 | `pushenv pull -s <stage>`<br/>`pushenv pull --stage <stage>` | Download & decrypt specific stage |
-| `pushenv run <command>` | Run command with secrets injected (no file created, default: `development` stage) |
+| `pushenv run <command>` | Run command with secrets in memory (default: `development` stage) |
 | `pushenv run -s <stage> <command>`<br/>`pushenv run --stage <stage> <command>` | Run with specific stage secrets |
 | `pushenv run --dry-run <command>` | Preview what would be injected without running |
 | `pushenv run -v <command>`<br/>`pushenv run --verbose <command>` | Show variable names being injected |
-| `pushenv run -s <stage> -v --dry-run <command>` | Options can be combined (stage + verbose + dry-run) |
-| `pushenv list-stages`<br/>`pushenv ls` | Show all configured stages and their status (local & cloud) |
+| `pushenv list-stages`<br/>`pushenv ls` | List all configured stages and their status |
 | *(coming soon)* `pushenv diff` | Compare local vs remote |
 
 ---
 
-## 🔥 Why Pushenv?
+## 🔥 Why PushEnv?
 
-Pushenv is a simple, end-to-end encrypted CLI for sharing `.env` files safely across your team — without ever storing secrets in Git or exposing plaintext to the cloud.
+**Solves the real problem:** Sharing `.env` files across teams without exposing secrets.
 
-- A dead-simple `.env` sync solution  
-- No SaaS lock-in  
-- No dashboards  
-- No user accounts  
-- No server  
-- Just **encryption + R2 + CLI**  
+- ✅ **No `.env` files in Git** — encrypted blobs only  
+- ✅ **No plaintext exposure** — end-to-end encryption  
+- ✅ **No SaaS lock-in** — use your own S3-compatible storage  
+- ✅ **Simple workflow** — push, pull, done  
+- ✅ **Team-friendly** — one passphrase, works everywhere  
+- ✅ **Open-source** — no vendor lock-in, fully auditable  
 
-If SOPS is too heavy…  
-If Doppler is too “enterprise”…  
-If git-crypt is too annoying…  
-
-**Pushenv is the perfect middle-ground.**
+Perfect for:
+- **Teams** sharing secrets across developers  
+- **CI/CD** pipelines needing secure env injection  
+- **Local development** with secure secret management  
+- **Docker** workflows without committing secrets  
+- **Solo developers** wanting better security practices
 
 ---
 
 ## 🛣 Roadmap
 
-### v0.2.0 ✅
-- ✅ Multi-env (`development`, `staging`, `production`)  
-- ✅ `list-stages` command
-- ✅ `run` command - zero-file execution
+### v0.2.0 (done)
+- Multi-env  
+- `list-stages`  
+- Zero-file execution  
 
-### v0.3.0  
+### v0.3.0
 - Env diff  
-- CI/CD examples  
-- More tests
+- CI/CD recipes  
+- More tests  
 
-### v0.4.0  
-- VSCode extension  
-- GitHub Action to sync secrets automatically  
+### v0.4.0
+- VSCode integration  
+- GitHub Action  
 
-### v1.0  
-- Optional team key-sharing  
-- UI dashboard (optional)  
-- Desktop app (optional)
+### v1.0
+- Team key sharing  
+- Optional dashboard  
+- Desktop app  
 
 ---
 
 ## ❤️ Contributing
 
-PRs welcome!  
-Pushenv is a simple, end-to-end encrypted CLI for sharing `.env` files safely across your team — without ever storing secrets in Git or exposing plaintext to the cloud.
-
-If you want to help with:
-
-- diff logic  
-- docs  
-- testing  
-- examples  
-- VSCode extension
-
-Feel free to open an issue or PR.
+PRs welcome!
 
 ---
 
 ## 📜 License
-
-MIT — fully open source, commercial-friendly.
+MIT — open-source, commercially friendly.
 
 ---
 
 ## 🙋 Author
-
 **Shahnoor Mujawar**  
-Builder of developer tools  
-Backend + Infra + AI engineer  
 Founder of Dtrue  
-On a mission to make dev tooling simpler & faster  
+Backend + Infra + AI engineer  
 
 ---
 
-# ⭐ If you like Pushenv, star the repo!
-
-Your star helps more developers discover it.  
-Let’s build the go-to open-source `.env` sync tool!
+⭐ **If you like PushEnv, star the repo!**  
+Your star helps other developers discover it.
