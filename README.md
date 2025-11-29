@@ -204,12 +204,12 @@ Perfect for:
 
 ## 🛣 Roadmap
 
-### v0.1.5 (done)
+### v0.1.6 (done)
 - Multi-env  
 - `list-stages`  
 - Zero-file execution  
 
-### v0.1.6 (coming soon)
+### v0.1.7 (coming soon)
 - Env diff  
 
 ---
