@@ -44,6 +44,28 @@ export async function pullCommand(stage: string): Promise<void> {
   console.log(chalk.gray(`Stage: ${stage}`));
   console.log(chalk.gray(`Env file: ${envPathForStage}\n`));
 
+  // Production confirmation
+  if (stage === "production") {
+    console.log(chalk.red.bold("\n⚠️  WARNING: You are about to pull PRODUCTION environment"));
+    console.log(chalk.red(`   This will overwrite ${envPathForStage} with production secrets.`));
+    console.log();
+    
+    const { confirm } = await inquirer.prompt<{ confirm: boolean }>([
+      {
+        type: "confirm",
+        name: "confirm",
+        message: chalk.red.bold("Are you sure you want to pull PRODUCTION?"),
+        default: false,
+      },
+    ]);
+
+    if (!confirm) {
+      console.log(chalk.gray("\nPull cancelled."));
+      return;
+    }
+    console.log();
+  }
+
   // Check if encrypted data exists in R2 for this stage
   console.log(chalk.gray("Checking cloud storage..."));
   const exists = await existsInR2(config.projectId, stage);
@@ -141,12 +163,58 @@ export async function pullCommand(stage: string): Promise<void> {
       saveKeyEntry(keyEntry);
     }
 
+    // Create header with metadata
+    const now = new Date();
+    const stageEmoji = stage === "production" ? " ⚠️" : "";
+    const header = `# ════════════════════════════════════════
+# PushEnv Environment File
+# Stage: ${stage.toUpperCase()}${stageEmoji}
+# Synced: ${now.toISOString()}
+# File: ${envPathForStage}
+# ════════════════════════════════════════
+# DO NOT COMMIT THIS FILE TO VERSION CONTROL
+# DO NOT SHARE THIS FILE
+#
+`;
+
+    // Remove existing PushEnv header if present, keep user's comments if any
+    const existingContent = decrypted;
+    const lines = existingContent.split("\n");
+    let contentStart = 0;
+
+    // Skip PushEnv headers (multiple # lines at start)
+    let foundPushEnvHeader = false;
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]?.trim() || "";
+      if (line && !line.startsWith("#")) {
+        contentStart = i;
+        break;
+      }
+      if (line.includes("PushEnv") || line.includes("═")) {
+        foundPushEnvHeader = true;
+      }
+    }
+
+    // If we found a PushEnv header, skip to first non-comment line after it
+    if (foundPushEnvHeader) {
+      for (let i = contentStart; i < lines.length; i++) {
+        const line = lines[i]?.trim() || "";
+        if (line && !line.startsWith("#")) {
+          contentStart = i;
+          break;
+        }
+      }
+    }
+
+    // Combine header with actual env content
+    const envContentWithHeader = header + lines.slice(contentStart).join("\n");
+
     // Write to .env file
     const envDir = path.dirname(envPath);
     if (!fs.existsSync(envDir)) {
       fs.mkdirSync(envDir, { recursive: true });
     }
-    fs.writeFileSync(envPath, decrypted, "utf8");
+    fs.writeFileSync(envPath, envContentWithHeader, "utf8");
 
     const lineCount = decrypted.split("\n").filter((l) => l.trim() && !l.startsWith("#")).length;
     console.log(chalk.green(`✓ Saved ${lineCount} environment variables to ${envPathForStage}`));

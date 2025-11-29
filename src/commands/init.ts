@@ -70,44 +70,44 @@ export async function initCommand(): Promise<void> {
   for (const stage of selectedStages) {
     const defaultEnvPath = selectedStages.length === 1 ? ".env" : `.env.${stage}`;
     
-    const { envPath } = await inquirer.prompt<{ envPath: string }>([
-      {
-        type: "input",
-        name: "envPath",
+  const { envPath } = await inquirer.prompt<{ envPath: string }>([
+    {
+      type: "input",
+      name: "envPath",
         message: `Where is your ${chalk.yellow(stage)} .env file located?`,
         default: defaultEnvPath,
-        validate: (input: string) => {
-          if (!input.trim()) {
-            return "Please enter a path";
-          }
-          return true;
-        },
+      validate: (input: string) => {
+        if (!input.trim()) {
+          return "Please enter a path";
+        }
+        return true;
+      },
+    },
+  ]);
+
+  const resolvedEnvPath = path.resolve(process.cwd(), envPath);
+  const relativeEnvPath = path.relative(process.cwd(), resolvedEnvPath);
+
+    // Check if .env exists for this stage
+  if (!envFileExists(resolvedEnvPath)) {
+      console.log(chalk.yellow(`  ⚠️  File '${relativeEnvPath}' does not exist yet.`));
+    const { createEnv } = await inquirer.prompt<{ createEnv: boolean }>([
+      {
+        type: "confirm",
+        name: "createEnv",
+          message: `  Would you like to create an empty ${stage} .env file?`,
+        default: true,
       },
     ]);
 
-    const resolvedEnvPath = path.resolve(process.cwd(), envPath);
-    const relativeEnvPath = path.relative(process.cwd(), resolvedEnvPath);
-
-    // Check if .env exists for this stage
-    if (!envFileExists(resolvedEnvPath)) {
-      console.log(chalk.yellow(`  ⚠️  File '${relativeEnvPath}' does not exist yet.`));
-      const { createEnv } = await inquirer.prompt<{ createEnv: boolean }>([
-        {
-          type: "confirm",
-          name: "createEnv",
-          message: `  Would you like to create an empty ${stage} .env file?`,
-          default: true,
-        },
-      ]);
-
-      if (createEnv) {
-        const envDir = path.dirname(resolvedEnvPath);
-        if (!fs.existsSync(envDir)) {
-          fs.mkdirSync(envDir, { recursive: true });
-        }
+    if (createEnv) {
+      const envDir = path.dirname(resolvedEnvPath);
+      if (!fs.existsSync(envDir)) {
+        fs.mkdirSync(envDir, { recursive: true });
+      }
         fs.writeFileSync(resolvedEnvPath, `# ${stage.toUpperCase()} environment variables\n`, "utf8");
         console.log(chalk.green(`  ✓ Created ${relativeEnvPath}`));
-      }
+    }
     } else {
       console.log(chalk.green(`  ✓ Found ${relativeEnvPath}`));
     }
@@ -198,7 +198,7 @@ export async function initCommand(): Promise<void> {
   console.log(chalk.cyan("Next steps:"));
   console.log(chalk.white(`  1. Add your secrets to your .env files`));
   if (selectedStages.length === 1) {
-    console.log(chalk.white(`  2. Run ${chalk.yellow("pushenv push")} to encrypt and upload`));
+  console.log(chalk.white(`  2. Run ${chalk.yellow("pushenv push")} to encrypt and upload`));
   } else {
     console.log(chalk.white(`  2. Run ${chalk.yellow("pushenv push --stage <stage>")} to encrypt and upload`));
     console.log(chalk.white(`     Example: ${chalk.gray(`pushenv push --stage production`)}`));

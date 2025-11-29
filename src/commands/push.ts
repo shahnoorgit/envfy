@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import inquirer from "inquirer";
 import chalk from "chalk";
 import {
   isProjectInitialized,
@@ -31,6 +32,28 @@ export async function pushCommand(stage: string): Promise<void> {
     console.log(chalk.gray(`  Configured stages: ${configuredStages.join(", ")}`));
     console.log(chalk.gray(`  Run 'pushenv init' to reconfigure stages.`));
     process.exit(1);
+  }
+
+  // Production confirmation
+  if (stage === "production") {
+    console.log(chalk.red.bold("\n⚠️  WARNING: You are about to push to PRODUCTION"));
+    console.log(chalk.red("   This will overwrite the remote production environment in cloud storage."));
+    console.log();
+    
+    const { confirm } = await inquirer.prompt<{ confirm: boolean }>([
+      {
+        type: "confirm",
+        name: "confirm",
+        message: chalk.red.bold("Are you sure you want to push to PRODUCTION?"),
+        default: false,
+      },
+    ]);
+
+    if (!confirm) {
+      console.log(chalk.gray("\nPush cancelled."));
+      return;
+    }
+    console.log();
   }
 
   // Check if .env file exists for this stage

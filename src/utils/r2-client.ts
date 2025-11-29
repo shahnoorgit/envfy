@@ -81,12 +81,12 @@ export async function downloadFromR2(
   const stageKey = getR2Key(projectId, stage);
   
   try {
-    const command = new GetObjectCommand({
-      Bucket: creds.bucket,
+  const command = new GetObjectCommand({
+    Bucket: creds.bucket,
       Key: stageKey,
-    });
+  });
 
-    const response = await client.send(command);
+  const response = await client.send(command);
 
     if (!response.Body) {
       throw new Error("No data found");
@@ -105,11 +105,11 @@ export async function downloadFromR2(
 
         const response = await client.send(legacyCommand);
 
-        if (!response.Body) {
-          throw new Error("No data found for this project");
-        }
+  if (!response.Body) {
+    throw new Error("No data found for this project");
+  }
 
-        return await response.Body.transformToString();
+  return await response.Body.transformToString();
       } catch {
         throw new Error(`No data found for this project (stage: ${stage})`);
       }
@@ -131,7 +131,7 @@ export async function existsInR2(
 
   // First try the new stage-based key
   const stageKey = getR2Key(projectId, stage);
-  
+
   try {
     const command = new HeadObjectCommand({
       Bucket: creds.bucket,
