@@ -20,8 +20,7 @@ const dbUrl = process.env.DB_URL;   // Could be missing! 💥
 
 ### After (PushEnv)
 ```typescript
-import { config, validateOrThrow } from 'pushenv';
-import { z } from 'zod';
+import { config, validateOrThrow, z } from 'pushenv';
 
 const env = validateOrThrow(z.object({
   PORT: z.coerce.number(),
@@ -136,7 +135,7 @@ env.DB_URL;  // string ✓ Validated URL!
 npm install pushenv
 ```
 
-**Note:** Zod is already included as a dependency - no need to install it separately!
+**Note:** Zod is bundled and re-exported - just import `z` from `pushenv`!
 
 ### As a CLI (Global Tool)
 ```bash
@@ -157,7 +156,7 @@ Then change:
 + pushenv.config();
 ```
 
-That's it! Zod is included, so you can use validation and type generation immediately. 🎉
+That's it! Import `z` from `pushenv` and start using validation immediately. 🎉
 
 ---
 
@@ -198,7 +197,7 @@ pushenv.config({ debug: true });
 ### Named Imports
 
 ```typescript
-import { config, validate, validateOrThrow } from 'pushenv';
+import { config, validate, validateOrThrow, z } from 'pushenv';
 
 // Use named imports
 config({ path: '.env.staging' });
@@ -209,8 +208,7 @@ config({ path: '.env.staging' });
 This is where PushEnv shines! Validate your environment variables at startup:
 
 ```typescript
-import { config, validate } from 'pushenv';
-import { z } from 'zod';  // Zod is included with pushenv!
+import { config, validate, z } from 'pushenv';  // z is re-exported from pushenv!
 
 // 1. Load .env file
 config();
@@ -234,8 +232,7 @@ console.log('✓ All environment variables are valid!');
 Get fully typed environment variables:
 
 ```typescript
-import { config, validateOrThrow } from 'pushenv';
-import { z } from 'zod';
+import { config, validateOrThrow, z } from 'pushenv';
 
 config();
 
@@ -259,8 +256,7 @@ const redisUrl = env.REDIS_URL; // string | undefined
 Recommended pattern for production applications:
 
 ```typescript
-import { config, validateOrThrow } from 'pushenv';
-import { z } from 'zod';
+import { config, validateOrThrow, z } from 'pushenv';
 
 function loadEnv() {
   // Load .env (ignores if not found - uses existing env vars)
@@ -298,8 +294,7 @@ try {
 For development, you might want warnings instead of crashes:
 
 ```typescript
-import { config, validate } from 'pushenv';
-import { z } from 'zod';
+import { config, validate, z } from 'pushenv';
 
 config();
 
@@ -320,8 +315,7 @@ if (!result.success) {
 **New!** Automatically generate TypeScript type definitions for `process.env`:
 
 ```typescript
-import { config, generateTypes } from 'pushenv';
-import { z } from 'zod';
+import { config, generateTypes, z } from 'pushenv';
 
 // Define your schema with proper types
 const schema = z.object({
@@ -346,8 +340,7 @@ const env: 'development' | 'production' | 'test' = process.env.NODE_ENV;
 **Auto-generate on config:**
 
 ```typescript
-import { config } from 'pushenv';
-import { z } from 'zod';
+import { config, z } from 'pushenv';
 
 config({
   schema: z.object({

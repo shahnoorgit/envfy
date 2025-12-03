@@ -5,7 +5,7 @@
  * 
  * @example Library usage (drop-in dotenv replacement)
  * ```typescript
- * import pushenv from 'pushenv';
+ * import pushenv, { z } from 'pushenv';
  * 
  * // Load .env file
  * pushenv.config();
@@ -13,8 +13,7 @@
  * // Load with options
  * pushenv.config({ path: '.env.production', override: true });
  * 
- * // Validate with Zod schema
- * import { z } from 'zod';
+ * // Validate with Zod schema (z is re-exported from pushenv!)
  * pushenv.validate({
  *   schema: z.object({
  *     PORT: z.string().regex(/^\d+$/),
@@ -23,19 +22,19 @@
  * });
  * ```
  * 
- * @example Named imports
+ * @example Named imports (no separate zod install needed!)
  * ```typescript
- * import { config, validate, validateOrThrow } from 'pushenv';
- * import { z } from 'zod';
+ * import { config, validateOrThrow, z } from 'pushenv';
  * 
  * config();
  * 
  * const env = validateOrThrow(z.object({
- *   PORT: z.string(),
+ *   PORT: z.coerce.number(),
  *   DATABASE_URL: z.string().url(),
  * }));
  * 
- * // env is now fully typed!
+ * env.PORT;        // number ✓ Fully typed!
+ * env.DATABASE_URL // string ✓ Validated URL!
  * ```
  * 
  * @example CLI usage
@@ -72,6 +71,9 @@ import {
   type GenerateTypesOptions,
   type GenerateTypesResult
 } from "./lib/generate-types.js";
+
+// Re-export Zod so users don't need to install it separately
+export { z } from "zod";
 
 // Named exports
 export { 

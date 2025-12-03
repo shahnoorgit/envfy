@@ -1,6 +1,6 @@
 {
   "name": "pushenv",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "type": "module",
   "description": "Pushenv is a simple, end-to-end encrypted CLI for sharing .env files safely across your team. Use as a library (dotenv alternative with validation) or CLI for team sync.",
   "main": "./dist/index.js",

@@ -27,8 +27,7 @@ export interface ValidationError {
  * 
  * @example
  * ```typescript
- * import { validate } from 'pushenv';
- * import { z } from 'zod';
+ * import { validate, z } from 'pushenv';
  * 
  * validate({
  *   schema: z.object({
@@ -174,16 +173,15 @@ export function validate(options: ValidateOptions): ValidateResult {
  * 
  * @example
  * ```typescript
- * import { validateOrThrow } from 'pushenv';
- * import { z } from 'zod';
+ * import { validateOrThrow, z } from 'pushenv';
  * 
  * const env = validateOrThrow(z.object({
- *   PORT: z.string().regex(/^\d+$/),
+ *   PORT: z.coerce.number(),
  *   DATABASE_URL: z.string().url(),
  * }));
  * 
- * // env is now fully typed!
- * console.log(env.PORT, env.DATABASE_URL);
+ * env.PORT;        // number ✓ Fully typed!
+ * env.DATABASE_URL // string ✓ Validated URL!
  * ```
  */
 export function validateOrThrow<T extends z.ZodObject<any>>(
