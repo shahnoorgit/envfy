@@ -133,8 +133,10 @@ env.DB_URL;  // string ✓ Validated URL!
 
 ### As a Library (Local Dependency)
 ```bash
-npm install pushenv zod
+npm install pushenv
 ```
+
+**Note:** Zod is already included as a dependency - no need to install it separately!
 
 ### As a CLI (Global Tool)
 ```bash
@@ -144,7 +146,7 @@ npm install -g pushenv
 ### Migration from dotenv
 ```bash
 npm uninstall dotenv
-npm install pushenv zod
+npm install pushenv
 ```
 
 Then change:
@@ -155,7 +157,7 @@ Then change:
 + pushenv.config();
 ```
 
-That's it! Now add validation and type generation for free. 🎉
+That's it! Zod is included, so you can use validation and type generation immediately. 🎉
 
 ---
 
@@ -208,7 +210,7 @@ This is where PushEnv shines! Validate your environment variables at startup:
 
 ```typescript
 import { config, validate } from 'pushenv';
-import { z } from 'zod';
+import { z } from 'zod';  // Zod is included with pushenv!
 
 // 1. Load .env file
 config();
