@@ -1,44 +1,129 @@
-# 📦 PushEnv — Secure, Encrypted .env Sync for Teams
-### *Simple. Fast. Open Source.*
+# 📦 PushEnv
+### *The modern dotenv with validation, type safety, and team sync.*
 
 [![npm version](https://img.shields.io/npm/v/pushenv.svg)](https://www.npmjs.com/package/pushenv)
 [![npm downloads](https://img.shields.io/npm/dw/pushenv.svg)](https://www.npmjs.com/package/pushenv)
 [![license](https://img.shields.io/npm/l/pushenv.svg)](./LICENSE)
 
-> **TL;DR:** Sync encrypted `.env` files across your team safely — no plaintext secrets in Git, no SaaS lock-in. Just encryption.
+> **PushEnv turns your `.env` into a typed, validated, auto-documented configuration system.**
 
-PushEnv solves the **core problem** developers face: **sharing `.env` files across teams without exposing secrets**. It's an open-source, end-to-end encrypted CLI that keeps your secrets safe — no plaintext in Git, Docker images, CI logs, or cloud storage.
+Drop-in `dotenv` replacement with Zod validation, automatic TypeScript types, and encrypted team sync. Use as a library for local dev, CLI for team collaboration.
 
-Built for developers who want **Doppler-level power** with **zero SaaS lock‑in**.  
-Runs fully local. No accounts. No dashboards. No subscriptions.
+## 🎯 Before vs After
+
+### Before (dotenv)
+```javascript
+require('dotenv').config();
+const port = process.env.PORT;      // string | undefined ⚠️
+const dbUrl = process.env.DB_URL;   // Could be missing! 💥
+```
+
+### After (PushEnv)
+```typescript
+import { config, validateOrThrow } from 'pushenv';
+import { z } from 'zod';
+
+const env = validateOrThrow(z.object({
+  PORT: z.coerce.number(),
+  DB_URL: z.string().url(),
+}));
+
+env.PORT;    // number ✓ Fully typed!
+env.DB_URL;  // string ✓ Validated URL!
+```
+
+**2 lines of code → massive upgrade.** Catch errors at startup, not in production.
+
+---
+
+## 🎯 Two Ways to Use PushEnv
+
+### 1️⃣ As a Library (dotenv alternative)
+- 📚 Drop-in replacement for `dotenv` with better features
+- ✅ Built-in **Zod validation** — catch config errors at startup
+- 🎨 TypeScript-first with full type safety
+- 🔧 **Auto TypeScript type generation** — no manual `.d.ts` files
+- 🚀 Zero dependencies on external services
+
+### 2️⃣ As a CLI (team sync tool)
+- 🔐 **AES-256-GCM encrypted** `.env` file sync across your team
+- ☁️ **Managed cloud storage included** — zero config, works out of the box
+- 📜 **Version control** for your environment variables
+- 🔓 **End-to-end encrypted** — secrets never leave your machine unencrypted
+- 🎯 **No accounts required** — just install and go
+
+**Why PushEnv?** Get the power of Doppler/Vault without SaaS lock-in. No accounts, no dashboards, no subscriptions. Cloud storage is included!
+
+### PushEnv vs dotenv
+
+| Feature | dotenv | PushEnv |
+|---------|--------|---------|
+| `.env` loading | ✅ | ✅ |
+| Zod validation | ❌ | ✅ |
+| TypeScript type generation | ❌ | ✅ |
+| Catch missing vars at startup | ❌ | ✅ |
+| Type-safe `process.env` | ❌ | ✅ |
+| CLI for team sync | ❌ | ✅ |
+| Managed cloud storage included | ❌ | ✅ |
+| Encrypted cloud backup | ❌ | ✅ |
+| Version control | ❌ | ✅ |
+| Auto `.gitignore` | ❌ | ✅ |
+| Zero config | ✅ | ✅ |
+
+**Migration:** Change `dotenv.config()` to `pushenv.config()`. That's it! 🎉
+
+### When to Use What?
+
+| Use Case | Library | CLI |
+|----------|---------|-----|
+| Load `.env` files locally | ✅ | ❌ |
+| Validate env vars with schema | ✅ | ❌ |
+| Type-safe environment config | ✅ | ❌ |
+| Generate TypeScript types | ✅ | ✅ |
+| Sync secrets across team | ❌ | ✅ |
+| Encrypted cloud backup | ❌ | ✅ |
+| Version control for secrets | ❌ | ✅ |
+| CI/CD secret injection | ✅ Both | ✅ |
+
+**Pro tip:** Use library for local dev, CLI for team sync! They work great together.
 
 ---
 
 ## 🚀 Features
 
-### Core Security
+### Library Features (dotenv alternative)
+- 📚 **Drop-in dotenv replacement** — use `pushenv.config()` instead of `dotenv.config()`
+- ✅ **Zod validation** — validate env vars with schemas, catch errors at startup
+- 🎨 **Full TypeScript support** — get type-safe environment variables
+- 🔧 **Auto TypeScript type generation** — generate `.d.ts` files from Zod schemas
+- 🔄 **Compatible API** — supports `path`, `override`, `debug` options like dotenv
+- 🚫 **Better error messages** — clear validation errors with helpful suggestions
+
+### CLI Features (team sync)
+
+#### Core Security
 - 🔐 **AES-256-GCM end-to-end encryption** — secrets encrypted before leaving your machine  
 - 🔑 **PBKDF2 passphrase-derived keys** — passphrase never stored, only derived key  
 - 🔓 **Secrets never sent in plaintext** — encrypted end-to-end  
 - 🖥 **One-time passphrase per machine** — enter once, key stored securely  
 - 💻 **Per-device keyring** — `~/.pushenv/keys.json` (private, never commit)  
 
-### Environment Management
+#### Environment Management
 - 🌲 **Multi-environment support** — manage `development`, `staging`, `production` separately  
 - ➕ **Add stages on-the-fly** — add new environments without reinitializing (`add-stage` command)  
 - 🛡️ **Smart file naming** — automatic `.env.{stage}` suggestions prevent accidental secret mixing  
 - 📋 **Stage overview** — list all configured stages and their status  
 
-### Version Control & History
+#### Version Control & History
 - 📜 **Built-in version history** — every push creates a new, timestamped version with an optional message (like Git for your `.env`)  
 - 🔍 **Diff any version** — compare your local `.env` with the latest remote or with a specific historical version before you pull or roll back  
 - ⏪ **Safe rollbacks** — restore any previous version of a stage with a single command (with extra guardrails for production)  
 - 📝 **Version messages** — annotate each push with custom messages for better tracking  
 
-### Advanced Features
+#### Advanced CLI Features
 - 🚀 **Zero-file execution** — run commands with secrets injected directly into memory, no `.env` files ever written to disk  
 - 📄 **Example file generation** — create safe `.env.example` files with placeholders for version control  
-- 💾 **Works with any S3-compatible storage** — Cloudflare R2, AWS S3, MinIO, etc.  
+- ☁️ **Managed cloud storage included** — no setup required, works out of the box  
 - 📁 **Per-project configuration** — `.pushenv/config.json` (safe to commit)  
 - 📝 **Fully open-source, no vendor lock-in**
 
@@ -46,26 +131,365 @@ Runs fully local. No accounts. No dashboards. No subscriptions.
 
 ## 🔧 Installation
 
+### As a Library (Local Dependency)
+```bash
+npm install pushenv zod
+```
+
+### As a CLI (Global Tool)
 ```bash
 npm install -g pushenv
 ```
 
-OR for development:
-
+### Migration from dotenv
 ```bash
-npm link
+npm uninstall dotenv
+npm install pushenv zod
 ```
+
+Then change:
+```diff
+- import dotenv from 'dotenv';
+- dotenv.config();
++ import pushenv from 'pushenv';
++ pushenv.config();
+```
+
+That's it! Now add validation and type generation for free. 🎉
 
 ---
 
-## 🛠 Quick Start
+## 📚 Library Usage (Dotenv Alternative)
+
+### Quick Start
+
+Replace `dotenv` with `pushenv` for instant validation support:
+
+```typescript
+// Before (dotenv)
+import dotenv from 'dotenv';
+dotenv.config();
+
+// After (pushenv) - same API!
+import pushenv from 'pushenv';
+pushenv.config();
+```
+
+### Basic Usage
+
+```typescript
+import pushenv from 'pushenv';
+
+// Load .env from current directory
+pushenv.config();
+
+// Load from custom path
+pushenv.config({ path: '.env.production' });
+
+// Override existing env vars (default: false)
+pushenv.config({ override: true });
+
+// Enable debug logging
+pushenv.config({ debug: true });
+```
+
+### Named Imports
+
+```typescript
+import { config, validate, validateOrThrow } from 'pushenv';
+
+// Use named imports
+config({ path: '.env.staging' });
+```
+
+### Validation with Zod 🔥
+
+This is where PushEnv shines! Validate your environment variables at startup:
+
+```typescript
+import { config, validate } from 'pushenv';
+import { z } from 'zod';
+
+// 1. Load .env file
+config();
+
+// 2. Define schema for required variables
+const envSchema = z.object({
+  PORT: z.string().regex(/^\d+$/, 'PORT must be a number'),
+  DATABASE_URL: z.string().url('Invalid database URL'),
+  NODE_ENV: z.enum(['development', 'production', 'test']),
+  API_KEY: z.string().min(32, 'API_KEY must be at least 32 characters'),
+});
+
+// 3. Validate (throws on error by default)
+validate({ schema: envSchema });
+
+console.log('✓ All environment variables are valid!');
+```
+
+### Type-Safe Validation
+
+Get fully typed environment variables:
+
+```typescript
+import { config, validateOrThrow } from 'pushenv';
+import { z } from 'zod';
+
+config();
+
+const envSchema = z.object({
+  PORT: z.string(),
+  DATABASE_URL: z.string().url(),
+  REDIS_URL: z.string().url().optional(),
+});
+
+// Returns typed data or throws
+const env = validateOrThrow(envSchema);
+
+// env is now fully typed! TypeScript knows all the fields
+const port = parseInt(env.PORT);
+const dbUrl = env.DATABASE_URL;
+const redisUrl = env.REDIS_URL; // string | undefined
+```
+
+### Production-Ready Pattern
+
+Recommended pattern for production applications:
+
+```typescript
+import { config, validateOrThrow } from 'pushenv';
+import { z } from 'zod';
+
+function loadEnv() {
+  // Load .env (ignores if not found - uses existing env vars)
+  config();
+
+  // Define required environment
+  const schema = z.object({
+    NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+    PORT: z.string().regex(/^\d+$/).default('3000'),
+    DATABASE_URL: z.string().url(),
+    REDIS_URL: z.string().url().optional(),
+    JWT_SECRET: z.string().min(32),
+    LOG_LEVEL: z.enum(['debug', 'info', 'warn', 'error']).default('info'),
+  });
+
+  // Validate and return typed config
+  return validateOrThrow(schema);
+}
+
+// Use at app startup
+try {
+  const env = loadEnv();
+  console.log('✓ Configuration loaded and validated');
+  
+  // Start your app with validated config
+  startServer(env.PORT, env.DATABASE_URL);
+} catch (error) {
+  console.error('❌ Configuration error:', error.message);
+  process.exit(1);
+}
+```
+
+### Non-Throwing Validation
+
+For development, you might want warnings instead of crashes:
+
+```typescript
+import { config, validate } from 'pushenv';
+import { z } from 'zod';
+
+config();
+
+const result = validate({
+  schema: z.object({
+    DATABASE_URL: z.string().url(),
+  }),
+  throwOnError: false,  // Just log warnings
+});
+
+if (!result.success) {
+  console.warn('⚠️  Some env vars are invalid, using defaults');
+}
+```
+
+### TypeScript Type Generation 🔥
+
+**New!** Automatically generate TypeScript type definitions for `process.env`:
+
+```typescript
+import { config, generateTypes } from 'pushenv';
+import { z } from 'zod';
+
+// Define your schema with proper types
+const schema = z.object({
+  PORT: z.coerce.number(),              // Will be typed as number
+  DATABASE_URL: z.string().url(),       // Will be typed as string
+  NODE_ENV: z.enum(['development', 'production', 'test']), // Union type!
+  API_KEY: z.string().optional(),       // Optional string
+});
+
+// Load config
+config();
+
+// Generate TypeScript types from schema
+generateTypes({ schema });
+// Creates: pushenv-env.d.ts
+
+// Now TypeScript knows your env vars!
+const port: number = process.env.PORT;  // ✓ Fully typed!
+const env: 'development' | 'production' | 'test' = process.env.NODE_ENV;
+```
+
+**Auto-generate on config:**
+
+```typescript
+import { config } from 'pushenv';
+import { z } from 'zod';
+
+config({
+  schema: z.object({
+    PORT: z.coerce.number(),
+    NODE_ENV: z.enum(['development', 'production']),
+  }),
+  generateTypes: true,  // Generate types automatically!
+});
+
+// pushenv-env.d.ts created and added to .gitignore
+```
+
+**CLI command:**
+
+```bash
+# Generate types from .env file
+pushenv generate-types
+
+# Custom paths
+pushenv generate-types --env-path .env.production --output env.d.ts
+
+# Short alias
+pushenv types
+```
+
+**What you get:**
+
+```typescript
+// pushenv-env.d.ts (auto-generated)
+declare namespace NodeJS {
+  interface ProcessEnv {
+    PORT: number;
+    DATABASE_URL: string;
+    NODE_ENV: 'development' | 'production' | 'test';
+    API_KEY?: string;
+  }
+}
+```
+
+Now your IDE autocompletes `process.env.*` with full type checking! 🎉
+
+### API Reference
+
+#### `config(options)`
+
+Load and parse a `.env` file into `process.env`.
+
+```typescript
+interface ConfigOptions {
+  path?: string;           // .env file path (default: ".env")
+  override?: boolean;      // override existing process.env (default: false)
+  debug?: boolean;         // log debug info (default: false)
+  encoding?: string;       // file encoding (default: "utf8")
+  schema?: z.ZodObject<any>;      // Zod schema for validation
+  generateTypes?: boolean | Partial<GenerateTypesOptions>; // Auto-generate types
+}
+
+interface ConfigResult {
+  parsed?: { [key: string]: string };
+  error?: Error;
+}
+```
+
+#### `validate(options)`
+
+Validate environment variables against a Zod schema.
+
+```typescript
+interface ValidateOptions {
+  schema: z.ZodObject<any>;
+  throwOnError?: boolean;  // throw or log warnings (default: true)
+  debug?: boolean;         // show debug info (default: false)
+}
+
+interface ValidateResult {
+  success: boolean;
+  data?: any;
+  errors?: ValidationError[];
+}
+```
+
+#### `validateOrThrow(schema)`
+
+Convenience function that validates and returns typed data or throws.
+
+```typescript
+function validateOrThrow<T extends z.ZodObject<any>>(
+  schema: T
+): z.infer<T>;
+```
+
+#### `generateTypes(options)`
+
+Generate TypeScript type definitions from a Zod schema.
+
+```typescript
+interface GenerateTypesOptions {
+  schema: z.ZodObject<any>;
+  output?: string;           // Output file path (default: "pushenv-env.d.ts")
+  addToGitignore?: boolean;  // Add to .gitignore (default: true)
+  silent?: boolean;          // Suppress console output (default: false)
+}
+
+interface GenerateTypesResult {
+  success: boolean;
+  outputPath?: string;
+  error?: Error;
+}
+```
+
+**Features:**
+- Infers proper TypeScript types from Zod schemas
+- Distinguishes required vs optional fields
+- Supports enums, unions, literals, and more
+- Automatically adds output file to `.gitignore`
+
+### Example Project
+
+See [`examples/library-usage.js`](examples/library-usage.js) for comprehensive usage examples.
+
+---
+
+## 🛠 CLI Usage (Team Sync)
+
+Use the CLI to securely sync `.env` files across your team with end-to-end encryption.
+
+### ☁️ Cloud Storage Included
+
+**No setup required!** PushEnv comes with managed cloud storage built-in. Just install and start using `push`/`pull` commands immediately.
+
+- ✅ **Zero config** — works out of the box
+- ✅ **No accounts** — no signup, no API keys
+- ✅ **No infrastructure** — cloud storage is included
+- ✅ **Fully encrypted** — end-to-end encryption with your passphrase
 
 ### 🤝 Who is this for?
 
 - **Solo developers** who want better secret hygiene without running another SaaS dashboard  
-- **Small teams** who just want a **simple “push / pull” workflow** that works across laptops and CI  
+- **Small teams** who just want a **simple "push / pull" workflow** that works across laptops and CI  
+- **Teams** who want encrypted secret storage without vendor lock-in
 
-You can get from “zero” to “secure `.env` synced for the whole team” in **under 5 minutes**:
+You can get from "zero" to "secure `.env` synced for the whole team" in **under 5 minutes**:
+
+### CLI Quick Start
 
 ### 1️⃣ Initialize
 
@@ -310,48 +734,59 @@ project/
 | `pushenv example` | Generate example `.env` file with placeholders (default: `development` stage) |
 | `pushenv example -s <stage>`<br/>`pushenv example --stage <stage>` | Generate example for specific stage |
 | `pushenv example -o <path>`<br/>`pushenv example --output <path>` | Specify output file path |
+| `pushenv generate-types`<br/>`pushenv types` | Generate TypeScript type definitions from `.env` file |
+| `pushenv generate-types --env-path <path>` | Generate types from specific `.env` file |
+| `pushenv generate-types --output <path>` | Specify output `.d.ts` file path |
 
 ---
 
 ## 🔥 Why PushEnv?
 
-**Solves the real problem:** Sharing `.env` files across teams without exposing secrets.
+**Solves two problems:** Validating local configs AND sharing secrets across teams.
 
+### As a Library (vs dotenv)
+- ✅ **Built-in validation** — catch config errors at startup (dotenv doesn't have this!)
+- ✅ **Type safety** — fully typed environment variables with Zod
+- ✅ **Auto type generation** — generate `.d.ts` files from schemas automatically
+- ✅ **Better errors** — clear messages about what's wrong and how to fix it
+- ✅ **Drop-in replacement** — same API as dotenv, just better
+- ✅ **Zero dependencies** — no external services required
+
+### As a CLI (vs Doppler/Vault)
 - ✅ **No `.env` files in Git** — encrypted blobs only  
 - ✅ **No plaintext exposure** — end-to-end encryption  
-- ✅ **No SaaS lock-in** — use your own S3-compatible storage  
+- ✅ **No setup required** — managed cloud storage included, works out of the box  
 - ✅ **Simple workflow** — push, pull, done  
 - ✅ **Team-friendly** — one passphrase, works everywhere  
 - ✅ **Open-source** — no vendor lock-in, fully auditable  
 
-Perfect for:
-- **Teams** sharing secrets across developers  
-- **CI/CD** pipelines needing secure env injection  
-- **Local development** with secure secret management  
+### Perfect For
+- **Solo developers** who want type-safe env vars without extra complexity
+- **Teams** sharing secrets across developers securely
+- **CI/CD** pipelines needing validated env injection  
+- **TypeScript projects** wanting full type safety for configuration
 - **Docker** workflows without committing secrets  
-- **Solo developers** wanting better security practices
+- **Anyone** tired of production bugs from missing/invalid env vars
 
 ---
 
-## 🎉 What's New in v1.0.0
+## 🎉 What's New
 
-### Major Features
-✅ **Add-Stage Command** — Add new environments without reinitializing  
-✅ **Smart Initialization** — Auto-suggests `.env.{stage}` and offers to rename plain `.env` files  
-✅ **Complete Version Control** — History, diff, and rollback for all stages  
-✅ **Zero-File Execution** — Run commands with secrets in memory only  
-✅ **Example File Generation** — Create safe `.env.example` files  
-✅ **Production Safeguards** — Extra confirmations for production operations  
+### 🔥 Library Features (NEW!)
+✅ **Drop-in dotenv replacement** — `pushenv.config()` works just like `dotenv.config()`  
+✅ **Zod validation** — Validate env vars at startup with schemas  
+✅ **TypeScript type generation** — Auto-generate `.d.ts` files from schemas  
+✅ **Type-safe process.env** — Full IDE autocomplete and type checking  
+✅ **Better error messages** — Clear validation errors with helpful suggestions
 
-### All Features Since v0.1.0
-- Multi-environment support (development, staging, production)
-- Versioned pushes with custom messages
-- Full history tracking per stage
-- Version-aware diff command
-- Safe rollback mechanism
-- Zero-file execution mode
-- Stage management commands
-- Smart file naming and safety warnings
+### CLI Features
+✅ **Managed cloud storage** — No setup required, works out of the box  
+✅ **Multi-environment support** — development, staging, production  
+✅ **Version control** — History, diff, and rollback for all stages  
+✅ **Zero-file execution** — Run commands with secrets in memory only  
+✅ **Example file generation** — Create safe `.env.example` files  
+✅ **Production safeguards** — Extra confirmations for production operations  
+✅ **Add-stage command** — Add new environments without reinitializing
 
 **Ready for production use!** 🚀
 

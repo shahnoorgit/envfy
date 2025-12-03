@@ -1,11 +1,20 @@
 {
   "name": "pushenv",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "type": "module",
-  "description": "Pushenv is a simple, end-to-end encrypted CLI for sharing .env files safely across your team",
-  "main": "./dist/cli.js",
+  "description": "Pushenv is a simple, end-to-end encrypted CLI for sharing .env files safely across your team. Use as a library (dotenv alternative with validation) or CLI for team sync.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "bin": {
     "pushenv": "./dist/cli.js"
+  },
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./cli": "./dist/cli.js"
   },
   "scripts": {
     "embed-credentials": "node scripts/embed-r2-credentials.js",
@@ -19,7 +28,12 @@
     "cli",
     "sync",
     "dotenv",
-    "environment"
+    "environment",
+    "validation",
+    "zod",
+    "library",
+    "typescript",
+    "config"
   ],
   "author": "Shahnoor Mujawar",
   "license": "MIT",
@@ -34,7 +48,8 @@
     "chalk": "^5.6.2",
     "commander": "^14.0.2",
     "dotenv": "^17.2.3",
-    "inquirer": "^13.0.1"
+    "inquirer": "^13.0.1",
+    "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/inquirer": "^9.0.9",

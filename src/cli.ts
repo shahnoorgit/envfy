@@ -10,6 +10,7 @@ import { diffCommand } from "./commands/diff.js";
 import { historyCommand } from "./commands/history.js";
 import { rollbackCommand } from "./commands/rollback.js";
 import { exampleCommand } from "./commands/example.js";
+import { generateTypesCommand } from "./commands/generate-types.js";
 import { PACKAGE_VERSION } from "./config/version.js";
 import { DEFAULT_STAGE } from "./utils/config.js";
 
@@ -188,6 +189,28 @@ program
   .action(async (options: { stage: string; output?: string }) => {
     try {
       await exampleCommand(options.stage, options.output);
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error(`Error: ${error.message}`);
+      }
+      process.exit(1);
+    }
+  });
+
+program
+  .command("generate-types")
+  .alias("types")
+  .description("Generate TypeScript type definitions from .env file")
+  .option("-e, --env-path <path>", "Path to .env file", ".env")
+  .option("-o, --output <path>", "Output file path", "pushenv-env.d.ts")
+  .option("--skip-gitignore", "Skip adding to .gitignore", false)
+  .action(async (options: { envPath: string; output: string; skipGitignore: boolean }) => {
+    try {
+      await generateTypesCommand({
+        envPath: options.envPath,
+        output: options.output,
+        skipGitignore: options.skipGitignore,
+      });
     } catch (error) {
       if (error instanceof Error) {
         console.error(`Error: ${error.message}`);

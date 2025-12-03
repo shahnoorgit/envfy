@@ -68,80 +68,46 @@ export async function initCommand(): Promise<void> {
   const stages: { [stage: string]: StageConfig } = {};
   
   for (const stage of selectedStages) {
-    // Always suggest .env.{stage} for better safety
-    const defaultEnvPath = `.env.${stage}`;
+    const defaultEnvPath = selectedStages.length === 1 ? ".env" : `.env.${stage}`;
     
-    const { envPath } = await inquirer.prompt<{ envPath: string }>([
-      {
-        type: "input",
-        name: "envPath",
+  const { envPath } = await inquirer.prompt<{ envPath: string }>([
+    {
+      type: "input",
+      name: "envPath",
         message: `Where is your ${chalk.yellow(stage)} .env file located?`,
         default: defaultEnvPath,
-        validate: (input: string) => {
-          if (!input.trim()) {
-            return "Please enter a path";
-          }
-          return true;
-        },
+      validate: (input: string) => {
+        if (!input.trim()) {
+          return "Please enter a path";
+        }
+        return true;
+      },
+    },
+  ]);
+
+  const resolvedEnvPath = path.resolve(process.cwd(), envPath);
+  const relativeEnvPath = path.relative(process.cwd(), resolvedEnvPath);
+
+    // Check if .env exists for this stage
+  if (!envFileExists(resolvedEnvPath)) {
+      console.log(chalk.yellow(`  ⚠️  File '${relativeEnvPath}' does not exist yet.`));
+    const { createEnv } = await inquirer.prompt<{ createEnv: boolean }>([
+      {
+        type: "confirm",
+        name: "createEnv",
+          message: `  Would you like to create an empty ${stage} .env file?`,
+        default: true,
       },
     ]);
 
-    const resolvedEnvPath = path.resolve(process.cwd(), envPath);
-    let relativeEnvPath = path.relative(process.cwd(), resolvedEnvPath);
-
-    // If user entered plain .env, offer to rename it to .env.{stage}
-    if (relativeEnvPath === ".env") {
-      console.log(chalk.yellow("\n⚠️  WARNING: Using '.env' for a specific stage is not recommended."));
-      console.log(chalk.gray(`  Multiple stages with the same file increases risk of pushing wrong secrets.\n`));
-      
-      const { shouldRename } = await inquirer.prompt<{ shouldRename: boolean }>([
-        {
-          type: "confirm",
-          name: "shouldRename",
-          message: `Rename to '${defaultEnvPath}' for safety?`,
-          default: true,
-        },
-      ]);
-
-      if (shouldRename) {
-        const newResolvedPath = path.resolve(process.cwd(), defaultEnvPath);
-        
-        // If .env exists, rename it
-        if (envFileExists(resolvedEnvPath)) {
-          fs.renameSync(resolvedEnvPath, newResolvedPath);
-          console.log(chalk.green(`  ✓ Renamed '${relativeEnvPath}' → '${defaultEnvPath}'`));
-        }
-        
-        // Update path
-        relativeEnvPath = defaultEnvPath;
-      } else {
-        console.log(chalk.gray(`  Keeping '${relativeEnvPath}' (not recommended)`));
+    if (createEnv) {
+      const envDir = path.dirname(resolvedEnvPath);
+      if (!fs.existsSync(envDir)) {
+        fs.mkdirSync(envDir, { recursive: true });
       }
-      console.log();
-    }
-
-    const finalResolvedPath = path.resolve(process.cwd(), relativeEnvPath);
-
-    // Check if .env exists for this stage
-    if (!envFileExists(finalResolvedPath)) {
-      console.log(chalk.yellow(`  ⚠️  File '${relativeEnvPath}' does not exist yet.`));
-      const { createEnv } = await inquirer.prompt<{ createEnv: boolean }>([
-        {
-          type: "confirm",
-          name: "createEnv",
-          message: `  Would you like to create an empty ${stage} .env file?`,
-          default: true,
-        },
-      ]);
-
-      if (createEnv) {
-        const envDir = path.dirname(finalResolvedPath);
-        if (!fs.existsSync(envDir)) {
-          fs.mkdirSync(envDir, { recursive: true });
-        }
-        fs.writeFileSync(finalResolvedPath, `# ${stage.toUpperCase()} environment variables\n`, "utf8");
+        fs.writeFileSync(resolvedEnvPath, `# ${stage.toUpperCase()} environment variables\n`, "utf8");
         console.log(chalk.green(`  ✓ Created ${relativeEnvPath}`));
-      }
+    }
     } else {
       console.log(chalk.green(`  ✓ Found ${relativeEnvPath}`));
     }
