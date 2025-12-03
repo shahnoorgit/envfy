@@ -401,13 +401,6 @@ interface GenerateTypesResult {
 - Supports enums, unions, literals, and more
 - Automatically adds output file to `.gitignore`
 
-### Example Projects
-
-See the [`examples/`](examples/) directory for comprehensive usage examples:
-- **[export-pattern.ts](examples/export-pattern.ts)** - Recommended pattern for production apps ⭐
-- More examples coming soon!
-
----
 
 ## 🛠 CLI Usage (Team Sync)
 
